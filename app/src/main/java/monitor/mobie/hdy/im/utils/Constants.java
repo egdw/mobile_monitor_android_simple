@@ -6,4 +6,5 @@ package monitor.mobie.hdy.im.utils;
 
 public class Constants {
     public static final String URL = "https://hdy.im/mobile";
+//    public static final String URL = "http://192.168.2.129:8080/mobile";
 }

@@ -32,8 +32,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <receiver android:name="monitor.mobie.hdy.im.broadcastreciver.BootBroadcastReciver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.PACKAGE_RESTARTED" />
+            </intent-filter>
+        </receiver>
+        <service
+            android:name=".service.MonitorService"
+            android:enabled="true"
+            android:process="system">
 
-        <service android:name=".service.MonitorService" />
+        </service>
     </application>
 
 </manifest>
