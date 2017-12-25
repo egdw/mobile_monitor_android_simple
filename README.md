@@ -3,6 +3,10 @@
 > 后台基于JAVA.此为安卓前端.
 > 开发目的:部分Iphone用户经常有两张手机卡.但是苹果只支持单张卡.所以特此开发安卓端进行远程监听.实现只用带一个手机即可实现远程查看来电和短信.
 
+## 项目地址
+1. https://github.com/egdw/Mobile_monitor
+2. https://github.com/egdw/mobile_monitor_android/
+
 ## 目前实现的功能
 1. 推送到服务器.通过账户和密码进行登陆.地址在[登陆地址]:https://www.hdy.im/mobile
 2. 实现微信登录推送.可以通过微信实时推送通知信息给你的微信账户.采用他的微信推送方式:http://sc.ftqq.com/?c=code
