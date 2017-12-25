@@ -1,12 +1,14 @@
 package monitor.mobie.hdy.im;
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,22 +16,25 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Set;
 
 import monitor.mobie.hdy.im.model.Reply;
 import monitor.mobie.hdy.im.service.MonitorService;
+import monitor.mobie.hdy.im.service.NotificationCollectorService;
 import monitor.mobie.hdy.im.utils.Constants;
 import monitor.mobie.hdy.im.utils.ToastUtils;
 import okhttp3.Call;
@@ -82,19 +87,40 @@ public class MainActivity extends AppCompatActivity {
         startService(serviceIntent);
     }
 
+
     private void init() {
+        if (!isNotificationListenerServiceEnabled(this)) {
+            Toast.makeText(this, "请先勾选手机监听器的读取通知栏权限!", Toast.LENGTH_LONG).show();
+            return;
+        }
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_NETWORK_STATE}, 3);
             }
             return;
         }
+        this.findViewById(R.id.textView).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                Uri uri = Uri.parse("http://sc.ftqq.com/3.version");
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setData(uri);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         toastUtils.toast("上次同步时间:" + data.getString("updateTime", "暂未同步"));
+        if (!isNotificationListenerServiceEnabled(this)) {
+//            openNotificationAccess();
+//            toggleNotificationListenerService();
+            Toast.makeText(this, "请先勾选手机监听器的读取通知栏权限!", Toast.LENGTH_LONG).show();
+            return;
+        }
     }
 
     @Override
@@ -141,7 +167,9 @@ public class MainActivity extends AppCompatActivity {
         final EditText phone = (EditText) view.findViewById(R.id.editText_phone);
         phone.setText(data.getString("phone", ""));
         final EditText password = (EditText) view.findViewById(R.id.editText_password);
+        final EditText SCKEY_input = (EditText) view.findViewById(R.id.sckey_input);
         password.setText(data.getString("password", ""));
+        SCKEY_input.setText(data.getString("SCKEY", ""));
         Button button = (Button) view.findViewById(R.id.login_button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -192,6 +220,7 @@ public class MainActivity extends AppCompatActivity {
                                     handler.sendMessage(message);
                                     edit.putString("phone", number).commit();
                                     edit.putString("password", passwd).commit();
+                                    edit.putString("SCKEY", SCKEY_input.getText().toString()).commit();
                                     serviceIntent = new Intent(MainActivity.this, MonitorService.class);
                                     serviceIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     startService(serviceIntent);
@@ -285,4 +314,29 @@ public class MainActivity extends AppCompatActivity {
         }
         return false;
     }
+
+    private void toggleNotificationListenerService() {
+        PackageManager pm = getPackageManager();
+        pm.setComponentEnabledSetting(new ComponentName(this, NotificationCollectorService.class),
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+
+        pm.setComponentEnabledSetting(new ComponentName(this, NotificationCollectorService.class),
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+
+    }
+
+    private static boolean isNotificationListenerServiceEnabled(Context context) {
+        Set<String> packageNames = NotificationManagerCompat.getEnabledListenerPackages(context);
+        if (packageNames.contains(context.getPackageName())) {
+            return true;
+        }
+        return false;
+    }
+
+    private static final String ACTION_NOTIFICATION_LISTENER_SETTINGS = "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS";
+
+    private void openNotificationAccess() {
+        startActivity(new Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS));
+    }
+
 }

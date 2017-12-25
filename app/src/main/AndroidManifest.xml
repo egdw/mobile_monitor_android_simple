@@ -39,11 +39,22 @@
                 <action android:name="android.intent.action.PACKAGE_RESTARTED" />
             </intent-filter>
         </receiver>
+
         <service
             android:name=".service.MonitorService"
             android:enabled="true"
             android:process="system">
 
+        </service>
+        <service
+            android:name=".service.NotificationCollectorService"
+            android:enabled="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:process="system">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
         </service>
     </application>
 

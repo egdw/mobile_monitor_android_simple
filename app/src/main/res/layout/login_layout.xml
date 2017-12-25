@@ -19,6 +19,14 @@
         android:id="@+id/editText_password"
         android:hint="您的密码" />
 
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:ems="10"
+        android:id="@+id/sckey_input"
+        android:hint="您的SCKEY值(可选,用于微信推送)" />
+
     <Button
         android:text="登录"
         android:layout_width="match_parent"

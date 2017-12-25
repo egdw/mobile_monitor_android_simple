@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +23,7 @@ import android.provider.Telephony;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
@@ -33,6 +35,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -65,6 +68,7 @@ public class MonitorService extends Service {
     private TimerTask task;
     private final Timer timer = new Timer();
     private static String phone;
+    private String SCKEY;
 
     @Nullable
     @Override
@@ -78,6 +82,11 @@ public class MonitorService extends Service {
         SharedPreferences data = getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
         phone = data.getString("phone", null);
         super.onCreate();
+        SCKEY = data.getString("SCKEY", "");
+        if (SCKEY != null && !SCKEY.equals("")) {
+            openNotificationAccess();
+            toggleNotificationListenerService();
+        }
         openDialReciver();
         openSmsReciver();
         startTimer();
@@ -278,6 +287,7 @@ public class MonitorService extends Service {
             detail.setType(type);
             detail.setMessageNum(String.valueOf(address));
             details.add(detail);
+            System.out.println(detail);
         }
         message.setMessages(details);
         return message;
@@ -388,4 +398,29 @@ public class MonitorService extends Service {
             }
         }
     };
+
+
+    private void toggleNotificationListenerService() {
+        PackageManager pm = getPackageManager();
+        pm.setComponentEnabledSetting(new ComponentName(this, NotificationCollectorService.class),
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+
+        pm.setComponentEnabledSetting(new ComponentName(this, NotificationCollectorService.class),
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+
+    }
+
+    private boolean isNotificationListenerServiceEnabled() {
+        Set<String> packageNames = NotificationManagerCompat.getEnabledListenerPackages(this.getApplicationContext());
+        if (packageNames.contains(this.getApplicationContext().getPackageName())) {
+            return true;
+        }
+        return false;
+    }
+
+    private static final String ACTION_NOTIFICATION_LISTENER_SETTINGS = "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS";
+
+    private void openNotificationAccess() {
+        startActivity(new Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS));
+    }
 }
