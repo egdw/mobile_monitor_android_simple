@@ -20,7 +20,6 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -60,20 +59,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openLoginDisplay();
-            }
-        });
-        toastUtils = new ToastUtils(MainActivity.this);
-        data = getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
-        edit = data.edit();
         init();
-        getContactMessage();
-        getSMSData();
+        requirePermission();
         if (serviceIntent == null) {
+            System.out.println("启动服务");
             serviceIntent = new Intent(MainActivity.this, MonitorService.class);
             serviceIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startService(serviceIntent);
@@ -89,14 +78,18 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void init() {
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openLoginDisplay();
+            }
+        });
+        toastUtils = new ToastUtils(MainActivity.this);
+        data = getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
+        edit = data.edit();
         if (!isNotificationListenerServiceEnabled(this)) {
             Toast.makeText(this, "请先勾选手机监听器的读取通知栏权限!", Toast.LENGTH_LONG).show();
-            return;
-        }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_NETWORK_STATE}, 3);
-            }
             return;
         }
         this.findViewById(R.id.textView).setOnClickListener(new View.OnClickListener() {
@@ -114,46 +107,42 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        toastUtils.toast("上次同步时间:" + data.getString("updateTime", "暂未同步"));
         if (!isNotificationListenerServiceEnabled(this)) {
-//            openNotificationAccess();
-//            toggleNotificationListenerService();
+            openNotificationAccess();
+            toggleNotificationListenerService();
             Toast.makeText(this, "请先勾选手机监听器的读取通知栏权限!", Toast.LENGTH_LONG).show();
             return;
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * 读取数据
-     * 虎丘动画记录
-     *
-     * @return 读取到的数据
-     */
-    private void getContactMessage() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{Manifest.permission.READ_CALL_LOG}, 1);
-            }
-            return;
-        }
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        int id = item.getItemId();
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
     /**
      * 获取短信数据
      */
-    private void getSMSData() {
+    private void requirePermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_NETWORK_STATE}, 3);
+            }
+            return;
+        }
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(new String[]{Manifest.permission.READ_SMS}, 2);
+            }
+            return;
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{Manifest.permission.READ_CALL_LOG}, 1);
             }
             return;
         }
@@ -164,12 +153,18 @@ public class MainActivity extends AppCompatActivity {
         View view = getLayoutInflater().inflate(R.layout.login_layout, null);
         builder.setView(view);
         final AlertDialog dialog = builder.show();
-        final EditText phone = (EditText) view.findViewById(R.id.editText_phone);
-        phone.setText(data.getString("phone", ""));
         final EditText password = (EditText) view.findViewById(R.id.editText_password);
         final EditText SCKEY_input = (EditText) view.findViewById(R.id.sckey_input);
+        //        获取QQname
+        final EditText qq_name = (EditText) view.findViewById(R.id.qq_name);
+        // 获取email_input
+        final EditText email_input = (EditText) view.findViewById(R.id.email_input);
+        final EditText phone = (EditText) view.findViewById(R.id.editText_phone);
+        phone.setText(data.getString("phone", ""));
         password.setText(data.getString("password", ""));
         SCKEY_input.setText(data.getString("SCKEY", ""));
+        qq_name.setText(data.getString("qq_name", ""));
+        email_input.setText(data.getString("email_input", ""));
         Button button = (Button) view.findViewById(R.id.login_button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -221,9 +216,12 @@ public class MainActivity extends AppCompatActivity {
                                     edit.putString("phone", number).commit();
                                     edit.putString("password", passwd).commit();
                                     edit.putString("SCKEY", SCKEY_input.getText().toString()).commit();
+                                    edit.putString("qq_name", qq_name.getText().toString()).commit();
+                                    edit.putString("email_input", email_input.getText().toString()).commit();
                                     serviceIntent = new Intent(MainActivity.this, MonitorService.class);
                                     serviceIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     startService(serviceIntent);
+                                    System.out.println("service start");
                                     dialog.dismiss();
                                 } else {
                                     handler.sendMessage(message);
@@ -248,23 +246,6 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-//    private ServiceConnection connection = new ServiceConnection() {
-//        //当绑定成功时执行
-//        @Override
-//        public void onServiceConnected(ComponentName name, IBinder service) {
-//            //把service强制转换为LocalService.LocalBinder我自己定义的这个类
-//            MonitorBinder binder = (MonitorBinder) service;
-//            monitorService = binder.getService();//调用这个类中的getService方法，得到localService对象
-//            flag = true;//设置为true
-//            Log.e(this.toString(), "服务已经启动");
-//        }
-//
-//        //绑定断开时执行
-//        @Override
-//        public void onServiceDisconnected(ComponentName name) {
-//            flag = false;
-//        }
-//    };
 
     public Handler handler = new Handler() {
         @Override
