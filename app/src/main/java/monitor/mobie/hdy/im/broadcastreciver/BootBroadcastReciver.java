@@ -16,7 +16,6 @@ public class BootBroadcastReciver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        System.out.println("手机开机了....");
         Intent serviceIntent = new Intent(context, MonitorService.class);
         context.startService(serviceIntent);
     }

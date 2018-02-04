@@ -37,9 +37,7 @@ public class NotificationCollectorService extends NotificationListenerService {
                     String title = sbn.getNotification().extras.get("android.title").toString();
                     StringBuilder sb = new StringBuilder();
                     sb.append("# ").append(title).append("\r\n")
-//                    .append("> ").append(packageNmae).append("\r\n")
                             .append("## ").append(text).append("\r\n");
-//                    .append("### ").append(tickerText);
                     //创建okHttpClient对象
                     OkHttpClient mOkHttpClient = new OkHttpClient();
                     //创建一个Request
@@ -72,41 +70,5 @@ public class NotificationCollectorService extends NotificationListenerService {
 
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
-//        Log.i("xiaolong", "remove" + "-----" + sbn.getPackageName());
-//        try {
-//            String packageNmae = sbn.getPackageName();
-////            String tickerText = sbn.getNotification().tickerText.toString();
-//            if (sbn.getNotification().extras.get("android.text") != null && sbn.getNotification().extras.get("android.title") != null) {
-//                String text = sbn.getNotification().extras.get("android.text").toString();
-//                String title = sbn.getNotification().extras.get("android.title").toString();
-//                StringBuilder sb = new StringBuilder();
-//                sb.append("# ").append(title).append("\r\n")
-////                    .append("> ").append(packageNmae).append("\r\n")
-//                        .append("## ").append(text).append("\r\n");
-////                    .append("### ").append(tickerText);
-//                //创建okHttpClient对象
-//                OkHttpClient mOkHttpClient = new OkHttpClient();
-//                //创建一个Request
-//                final Request request = new Request.Builder()
-//                        .url("https://sc.ftqq.com/SCU17301T0b5df5bc1a5347f47bea712f96c43a395a23d1832df92.send?text=" + URLEncoder.encode(title) + "&desp=" + URLEncoder.encode(sb.toString()))
-//                        .build();
-//                System.out.println("https://sc.ftqq.com/SCU17301T0b5df5bc1a5347f47bea712f96c43a395a23d1832df92.send?text=" + URLEncoder.encode(title) + "&desp=" + URLEncoder.encode(sb.toString()));
-//                //new call
-//                Call call = mOkHttpClient.newCall(request);
-//                //请求加入调度
-//                call.enqueue(new Callback() {
-//                    @Override
-//                    public void onFailure(Request request, IOException e) {
-//                    }
-//
-//                    @Override
-//                    public void onResponse(final Response response) throws IOException {
-//                        //String htmlStr =  response.body().string();
-//                    }
-//                });
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
     }
 }
