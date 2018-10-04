@@ -83,7 +83,7 @@ public class MonitorService extends Service {
         //保持为前台应用状态
         NotificationManager nm = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-        builder.setContentTitle("后台监控中...")
+        builder.setContentTitle("手机监控器监听通知栏中...")
                 .setContentText("")
                 .setWhen(System.currentTimeMillis())
                 .setPriority(Notification.PRIORITY_MIN)
@@ -103,14 +103,6 @@ public class MonitorService extends Service {
         pm.setComponentEnabledSetting(new ComponentName(this, NotificationCollectorService.class),
                 PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
 
-    }
-
-    private boolean isNotificationListenerServiceEnabled() {
-        Set<String> packageNames = NotificationManagerCompat.getEnabledListenerPackages(this.getApplicationContext());
-        if (packageNames.contains(this.getApplicationContext().getPackageName())) {
-            return true;
-        }
-        return false;
     }
 
     private static final String ACTION_NOTIFICATION_LISTENER_SETTINGS = "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS";

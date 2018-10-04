@@ -3,6 +3,7 @@ package monitor.mobie.hdy.im.service;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.os.PowerManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.support.annotation.RequiresApi;
@@ -28,7 +29,13 @@ public class NotificationCollectorService extends NotificationListenerService {
     public void onNotificationPosted(StatusBarNotification sbn) {
         SharedPreferences data = getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
         String SCKEY = data.getString("SCKEY", "");
-        if (SCKEY != null && !SCKEY.equals("")) {
+
+        //屏幕亮屏的情况下不发送任何信息.
+        PowerManager powerManager = (PowerManager) this
+                .getSystemService(Context.POWER_SERVICE);
+        boolean ifOpen = powerManager.isScreenOn();
+
+        if (SCKEY != null && !SCKEY.equals("") && !ifOpen) {
             try {
                 String packageNmae = sbn.getPackageName();
 //            String tickerText = sbn.getNotification().tickerText.toString();
