@@ -46,8 +46,20 @@ public class NotificationCollectorService extends NotificationListenerService {
 
         if (SCKEY != null && !SCKEY.equals("")) {
             try {
-                String packageNmae = sbn.getPackageName();
-//            String tickerText = sbn.getNotification().tickerText.toString();
+                //获取应用的packageName
+                String packageName = sbn.getPackageName();
+                //这里要进行判断,不需要的packageName就不用通知了.
+
+                boolean listenAll = data.getBoolean("listenAll", true);
+                if(!listenAll){
+                    //如果不是全部监听的话
+                    //这里判断当前的包名是否和用户勾选的应用包名相同.如果相同的话就进行通知
+                    //如果不相同就跳过.避免不必要的通知.
+                    return;
+                }
+
+
+//              String tickerText = sbn.getNotification().tickerText.toString();
                 if (sbn.getNotification().extras.get("android.text") != null && sbn.getNotification().extras.get("android.title") != null) {
                     String text = sbn.getNotification().extras.get("android.text").toString();
                     String title = sbn.getNotification().extras.get("android.title").toString();

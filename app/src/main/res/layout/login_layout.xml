@@ -17,10 +17,18 @@
         android:id="@+id/light"
         android:text="关闭亮屏推送(屏幕点亮之后不会推送任何消息)" />
 
+    <Switch
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:id="@+id/listenAll"
+        android:text="监听所有通知" />
+
     <ListView
+        android:id="@+id/applicationList"
         android:layout_width="match_parent"
         android:layout_height="300px"
-        android:id="@+id/applicationList"/>
+        android:visibility="invisible" />
 
     <Button
         android:text="保存"
