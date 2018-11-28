@@ -10,12 +10,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -107,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private Handler myHandler = null;
 
     private void openLoginDisplay() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -123,57 +127,23 @@ public class MainActivity extends AppCompatActivity {
         final Switch listenAllSwitch = (Switch) view.findViewById(R.id.listenAll);
         listenAllSwitch.setChecked(data.getBoolean("listenAll", true));
         final ListView applicationList = (ListView) view.findViewById(R.id.applicationList);
-
-        if (data.getBoolean("listenAll", true) == false) {
-            Toast.makeText(MainActivity.this,"加载应用中..耐心等待",Toast.LENGTH_LONG);
-            applicationList.setVisibility(View.VISIBLE);
-            List<AppInfo> appInfos = getAppInfos();
-            //获取当前所有的应用信息.
-            //从数据库读取从前同意的应用信息
-            SQLiteDatabase database = AppinfosDatabase.getReadInstance(MainActivity.this);
-            HashMap<String, Object> infos = AppinfosDatabase.getInstance(MainActivity.this).selectAll(database);
-
-            if (infos != null && infos.size() > 0) {
-                for (int i = 0; i < appInfos.size(); i++) {
-                    AppInfo next = appInfos.get(i);
-                    String packageName = next.getPackageName();
-                    if (infos.get(packageName) != null) {
-                        //如果相同的话
-                        next.setOpen(true);
-                        appInfos.set(i, next);
-                    }
-                }
+        myHandler = new Handler() {
+            public void handleMessage(Message msg) {
+                applicationList.setVisibility(View.VISIBLE);
+                adapter = new AppInfosAdapter(MainActivity.this, (List<AppInfo>) msg.obj);
+                applicationList.setAdapter(adapter);
             }
-
-            adapter = new AppInfosAdapter(MainActivity.this, appInfos);
-            applicationList.setAdapter(adapter);
+        };
+        if (data.getBoolean("listenAll", true) == false) {
+            Toast.makeText(MainActivity.this, "加载应用中..请耐心等待", Toast.LENGTH_LONG).show();
+            getAppsThread();
         }
         listenAllSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (!isChecked) {
-                    Toast.makeText(MainActivity.this,"加载应用中..耐心等待",Toast.LENGTH_LONG);
-                    applicationList.setVisibility(View.VISIBLE);
-                    List<AppInfo> appInfos = getAppInfos();
-                    //获取当前所有的应用信息.
-                    //从数据库读取从前同意的应用信息
-                    SQLiteDatabase database = AppinfosDatabase.getReadInstance(MainActivity.this);
-                    HashMap<String, Object> infos = AppinfosDatabase.getInstance(MainActivity.this).selectAll(database);
-
-                    if (infos != null && infos.size() > 0) {
-                        for (int i = 0; i < appInfos.size(); i++) {
-                            AppInfo next = appInfos.get(i);
-                            String packageName = next.getPackageName();
-                            if (infos.get(packageName) != null) {
-                                //如果相同的话
-                                next.setOpen(true);
-                                appInfos.set(i, next);
-                            }
-                        }
-                    }
-
-                    adapter = new AppInfosAdapter(MainActivity.this, appInfos);
-                    applicationList.setAdapter(adapter);
+                    Toast.makeText(MainActivity.this, "加载应用中..请耐心等待", Toast.LENGTH_LONG).show();
+                    getAppsThread();
                 } else {
                     applicationList.setVisibility(View.INVISIBLE);
                 }
@@ -198,12 +168,12 @@ public class MainActivity extends AppCompatActivity {
                 SQLiteDatabase writeInstance =
                         AppinfosDatabase.getWriteInstance(MainActivity.this);
                 AppinfosDatabase.getInstance(MainActivity.this).removeAll(writeInstance);
-                if(!listenAllSwitch.isChecked()){
+                if (!listenAllSwitch.isChecked()) {
                     List<AppInfo> appInfos = adapter.getAppInfos();
                     for (int i = 0; i < appInfos.size(); i++) {
                         AppInfo appInfo = appInfos.get(i);
                         //如果勾选了.但是没有查到的话.就插入到数据库当中
-                        if(appInfo.isOpen()){
+                        if (appInfo.isOpen()) {
                             AppinfosDatabase.getInstance(MainActivity.this).insert(writeInstance, appInfo.getPackageName());
                         }
                     }
@@ -262,4 +232,34 @@ public class MainActivity extends AppCompatActivity {
         return appInfos;
     }
 
+    public void getAppsThread(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.i("开始...","");
+                List<AppInfo> appInfos = getAppInfos();
+                //获取当前所有的应用信息.
+                //从数据库读取从前同意的应用信息
+                SQLiteDatabase database = AppinfosDatabase.getReadInstance(MainActivity.this);
+                HashMap<String, Object> infos = AppinfosDatabase.getInstance(MainActivity.this).selectAll(database);
+
+                if (infos != null && infos.size() > 0) {
+                    for (int i = 0; i < appInfos.size(); i++) {
+                        AppInfo next = appInfos.get(i);
+                        String packageName = next.getPackageName();
+                        if (infos.get(packageName) != null) {
+                            //如果相同的话
+                            next.setOpen(true);
+                            appInfos.set(i, next);
+                        }
+                    }
+                }
+                Log.i("查询的数据:",infos+"");
+                Message message = new Message();
+                message.what = 0x1;
+                message.obj = appInfos;
+                myHandler.sendMessage(message);
+            }
+        }).start();
+    }
 }
