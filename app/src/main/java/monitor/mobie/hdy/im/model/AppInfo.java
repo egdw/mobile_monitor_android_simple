@@ -12,6 +12,7 @@ public class AppInfo {
     String appName;
     String packageName;
     Drawable drawable;
+    boolean open;
 
     public AppInfo() {
     }
@@ -62,12 +63,21 @@ public class AppInfo {
         this.drawable = drawable;
     }
 
+    public boolean isOpen() {
+        return open;
+    }
+
+    public void setOpen(boolean open) {
+        this.open = open;
+    }
+
     @Override
     public String toString() {
         return "AppInfo{" +
                 "appName='" + appName + '\'' +
                 ", packageName='" + packageName + '\'' +
                 ", drawable=" + drawable +
+                ", open=" + open +
                 '}';
     }
 }

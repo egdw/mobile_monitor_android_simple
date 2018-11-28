@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import monitor.mobie.hdy.im.adapter.AppInfosAdapter;
 import monitor.mobie.hdy.im.model.AppInfo;
 import monitor.mobie.hdy.im.service.MonitorService;
 import monitor.mobie.hdy.im.service.NotificationCollectorService;
@@ -125,7 +126,8 @@ public class MainActivity extends AppCompatActivity {
                 if(!isChecked){
                     applicationList.setVisibility(View.VISIBLE);
                     List<AppInfo> appInfos = getAppInfos();
-                    Log.i("所有的应用",appInfos+"");
+                    AppInfosAdapter adapter = new AppInfosAdapter(MainActivity.this, appInfos);
+                    applicationList.setAdapter(adapter);
                 }else{
                     applicationList.setVisibility(View.INVISIBLE);
                 }

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ImageView
+        android:id="@+id/app_infos_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="19dp"
+        android:layout_marginStart="19dp"
+        android:layout_marginTop="15dp" />
+
+    <Switch
+        android:id="@+id/app_infos_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/app_infos_name"
+        android:layout_marginEnd="15dp"
+        android:layout_marginRight="15dp"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/app_infos_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/app_infos_img"
+        android:layout_marginLeft="21dp"
+        android:layout_marginStart="21dp"
+        android:layout_toEndOf="@+id/app_infos_img"
+        android:layout_toRightOf="@+id/app_infos_img"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/app_infos_pacakge_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/app_infos_name"
+        android:layout_alignStart="@+id/app_infos_name"
+        android:layout_below="@+id/app_infos_switch"
+        android:text="" />
+</RelativeLayout>
