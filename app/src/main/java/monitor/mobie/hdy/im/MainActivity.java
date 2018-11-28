@@ -16,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import java.util.Set;
@@ -102,6 +103,8 @@ public class MainActivity extends AppCompatActivity {
         final AlertDialog dialog = builder.show();
         final EditText SCKEY_input = (EditText) view.findViewById(R.id.sckey_input);
         SCKEY_input.setText(data.getString("SCKEY", ""));
+        final Switch aSwitch = (Switch) view.findViewById(R.id.light);
+        aSwitch.setChecked(data.getBoolean("LIGHT",false));
         Button button = (Button) view.findViewById(R.id.login_button);
         serviceIntent = new Intent(MainActivity.this, MonitorService.class);
         serviceIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -111,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //这里进行提交登录
                 edit.putString("SCKEY", SCKEY_input.getText().toString()).commit();
+                edit.putBoolean("LIGHT", aSwitch.isChecked()).commit();
                 dialog.dismiss();
             }
         });

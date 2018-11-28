@@ -19,6 +19,7 @@ import java.net.URLEncoder;
 
 /**
  * 在这里可以监听数据
+ * @author egdw
  */
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class NotificationCollectorService extends NotificationListenerService {
@@ -29,13 +30,21 @@ public class NotificationCollectorService extends NotificationListenerService {
     public void onNotificationPosted(StatusBarNotification sbn) {
         SharedPreferences data = getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
         String SCKEY = data.getString("SCKEY", "");
+        boolean light = data.getBoolean("LIGHT", false);
+        boolean ifOpen = false;
+        //新增支持是否点亮屏幕也推送数据.默认为关闭
+        if (light) {
+//            屏幕亮屏的情况下不发送任何信息.
+            PowerManager powerManager = (PowerManager) this
+                    .getSystemService(Context.POWER_SERVICE);
+            ifOpen = powerManager.isScreenOn();
+            if(ifOpen){
+                //现在是关闭了亮屏推送.那么如果当前的屏幕是点亮的话就不执行下面的代码
+                return;
+            }
+        }
 
-        //屏幕亮屏的情况下不发送任何信息.
-        PowerManager powerManager = (PowerManager) this
-                .getSystemService(Context.POWER_SERVICE);
-        boolean ifOpen = powerManager.isScreenOn();
-
-        if (SCKEY != null && !SCKEY.equals("") && !ifOpen) {
+        if (SCKEY != null && !SCKEY.equals("")) {
             try {
                 String packageNmae = sbn.getPackageName();
 //            String tickerText = sbn.getNotification().tickerText.toString();
