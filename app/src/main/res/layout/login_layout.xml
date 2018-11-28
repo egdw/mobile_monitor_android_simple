@@ -27,7 +27,7 @@
     <ListView
         android:id="@+id/applicationList"
         android:layout_width="match_parent"
-        android:layout_height="300px"
+        android:layout_height="308dp"
         android:visibility="invisible" />
 
     <Button

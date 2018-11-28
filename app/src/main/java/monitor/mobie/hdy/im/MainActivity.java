@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,7 +16,6 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -25,10 +25,12 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
 import monitor.mobie.hdy.im.adapter.AppInfosAdapter;
+import monitor.mobie.hdy.im.database.AppinfosDatabase;
 import monitor.mobie.hdy.im.model.AppInfo;
 import monitor.mobie.hdy.im.service.MonitorService;
 import monitor.mobie.hdy.im.service.NotificationCollectorService;
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private ToastUtils toastUtils;
     private SharedPreferences data;
     private SharedPreferences.Editor edit;
+    private AppInfosAdapter adapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,22 +123,65 @@ public class MainActivity extends AppCompatActivity {
         final Switch listenAllSwitch = (Switch) view.findViewById(R.id.listenAll);
         listenAllSwitch.setChecked(data.getBoolean("listenAll", true));
         final ListView applicationList = (ListView) view.findViewById(R.id.applicationList);
+
+        if (data.getBoolean("listenAll", true) == false) {
+            Toast.makeText(MainActivity.this,"加载应用中..耐心等待",Toast.LENGTH_LONG);
+            applicationList.setVisibility(View.VISIBLE);
+            List<AppInfo> appInfos = getAppInfos();
+            //获取当前所有的应用信息.
+            //从数据库读取从前同意的应用信息
+            SQLiteDatabase database = AppinfosDatabase.getReadInstance(MainActivity.this);
+            HashMap<String, Object> infos = AppinfosDatabase.getInstance(MainActivity.this).selectAll(database);
+
+            if (infos != null && infos.size() > 0) {
+                for (int i = 0; i < appInfos.size(); i++) {
+                    AppInfo next = appInfos.get(i);
+                    String packageName = next.getPackageName();
+                    if (infos.get(packageName) != null) {
+                        //如果相同的话
+                        next.setOpen(true);
+                        appInfos.set(i, next);
+                    }
+                }
+            }
+
+            adapter = new AppInfosAdapter(MainActivity.this, appInfos);
+            applicationList.setAdapter(adapter);
+        }
         listenAllSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(!isChecked){
+                if (!isChecked) {
+                    Toast.makeText(MainActivity.this,"加载应用中..耐心等待",Toast.LENGTH_LONG);
                     applicationList.setVisibility(View.VISIBLE);
                     List<AppInfo> appInfos = getAppInfos();
-                    AppInfosAdapter adapter = new AppInfosAdapter(MainActivity.this, appInfos);
+                    //获取当前所有的应用信息.
+                    //从数据库读取从前同意的应用信息
+                    SQLiteDatabase database = AppinfosDatabase.getReadInstance(MainActivity.this);
+                    HashMap<String, Object> infos = AppinfosDatabase.getInstance(MainActivity.this).selectAll(database);
+
+                    if (infos != null && infos.size() > 0) {
+                        for (int i = 0; i < appInfos.size(); i++) {
+                            AppInfo next = appInfos.get(i);
+                            String packageName = next.getPackageName();
+                            if (infos.get(packageName) != null) {
+                                //如果相同的话
+                                next.setOpen(true);
+                                appInfos.set(i, next);
+                            }
+                        }
+                    }
+
+                    adapter = new AppInfosAdapter(MainActivity.this, appInfos);
                     applicationList.setAdapter(adapter);
-                }else{
+                } else {
                     applicationList.setVisibility(View.INVISIBLE);
                 }
             }
         });
-        if(listenAllSwitch.isChecked()){
+        if (listenAllSwitch.isChecked()) {
             applicationList.setVisibility(View.INVISIBLE);
-        }else{
+        } else {
             applicationList.setVisibility(View.VISIBLE);
         }
 
@@ -149,6 +195,20 @@ public class MainActivity extends AppCompatActivity {
                 edit.putString("SCKEY", SCKEY_input.getText().toString()).commit();
                 edit.putBoolean("LIGHT", aSwitch.isChecked()).commit();
                 edit.putBoolean("listenAll", listenAllSwitch.isChecked()).commit();
+                SQLiteDatabase writeInstance =
+                        AppinfosDatabase.getWriteInstance(MainActivity.this);
+                AppinfosDatabase.getInstance(MainActivity.this).removeAll(writeInstance);
+                if(!listenAllSwitch.isChecked()){
+                    List<AppInfo> appInfos = adapter.getAppInfos();
+                    for (int i = 0; i < appInfos.size(); i++) {
+                        AppInfo appInfo = appInfos.get(i);
+                        //如果勾选了.但是没有查到的话.就插入到数据库当中
+                        if(appInfo.isOpen()){
+                            AppinfosDatabase.getInstance(MainActivity.this).insert(writeInstance, appInfo.getPackageName());
+                        }
+                    }
+                }
+
                 dialog.dismiss();
             }
         });
@@ -184,19 +244,19 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS));
     }
 
-    public List<AppInfo> getAppInfos(){
+    public List<AppInfo> getAppInfos() {
         PackageManager pm = getApplication().getPackageManager();
-        List<PackageInfo>  packgeInfos = pm.getInstalledPackages(PackageManager.GET_UNINSTALLED_PACKAGES);
+        List<PackageInfo> packgeInfos = pm.getInstalledPackages(PackageManager.GET_UNINSTALLED_PACKAGES);
         ArrayList<AppInfo> appInfos = new ArrayList<AppInfo>();
-    	/* 获取应用程序的名称，不是包名，而是清单文件中的labelname
-			String str_name = packageInfo.applicationInfo.loadLabel(pm).toString();
+        /* 获取应用程序的名称，不是包名，而是清单文件中的labelname
+            String str_name = packageInfo.applicationInfo.loadLabel(pm).toString();
 			appInfo.setAppName(str_name);
     	 */
-        for(PackageInfo packgeInfo : packgeInfos){
+        for (PackageInfo packgeInfo : packgeInfos) {
             String appName = packgeInfo.applicationInfo.loadLabel(pm).toString();
             String packageName = packgeInfo.packageName;
             Drawable drawable = packgeInfo.applicationInfo.loadIcon(pm);
-            AppInfo appInfo = new AppInfo(appName, packageName,drawable);
+            AppInfo appInfo = new AppInfo(appName, packageName, drawable);
             appInfos.add(appInfo);
         }
         return appInfos;

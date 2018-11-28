@@ -2,11 +2,13 @@ package monitor.mobie.hdy.im.service;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.PowerManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
@@ -16,9 +18,13 @@ import com.squareup.okhttp.Response;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.HashMap;
+
+import monitor.mobie.hdy.im.database.AppinfosDatabase;
 
 /**
  * 在这里可以监听数据
+ *
  * @author egdw
  */
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -38,7 +44,7 @@ public class NotificationCollectorService extends NotificationListenerService {
             PowerManager powerManager = (PowerManager) this
                     .getSystemService(Context.POWER_SERVICE);
             ifOpen = powerManager.isScreenOn();
-            if(ifOpen){
+            if (ifOpen) {
                 //现在是关闭了亮屏推送.那么如果当前的屏幕是点亮的话就不执行下面的代码
                 return;
             }
@@ -49,13 +55,17 @@ public class NotificationCollectorService extends NotificationListenerService {
                 //获取应用的packageName
                 String packageName = sbn.getPackageName();
                 //这里要进行判断,不需要的packageName就不用通知了.
-
                 boolean listenAll = data.getBoolean("listenAll", true);
-                if(!listenAll){
+                if (!listenAll) {
                     //如果不是全部监听的话
                     //这里判断当前的包名是否和用户勾选的应用包名相同.如果相同的话就进行通知
                     //如果不相同就跳过.避免不必要的通知.
-                    return;
+
+                    SQLiteDatabase database = AppinfosDatabase.getReadInstance(this);
+                    HashMap<String, Object> infos = AppinfosDatabase.getInstance(this).selectAll(database);
+                    if (!infos.containsKey(packageName)) {
+                        return;
+                    }
                 }
 
 
