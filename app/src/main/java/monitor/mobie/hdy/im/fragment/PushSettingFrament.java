@@ -33,7 +33,7 @@ public class PushSettingFrament extends PreferenceFragment {
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void init() {
-        final SharedPreferences shp = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+        final SharedPreferences shp = getPreferenceManager().getSharedPreferences();
         final EditTextPreference SCKEY = (EditTextPreference) findPreference("SCKEY");
         final EditTextPreference wx_corpid = (EditTextPreference) findPreference("wx_corpid");
         final EditTextPreference wx_corpsecret = (EditTextPreference) findPreference("wx_corpsecret");
