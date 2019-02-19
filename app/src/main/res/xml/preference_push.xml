@@ -54,6 +54,9 @@
             android:title="作者"
             android:summary="恶搞大王"/>
         <Preference
+            android:title="当前版本"
+            android:summary="3.0"/>
+        <Preference
             android:title="本程序完全免费开源"
             android:summary="开源地址请点击这里"
             ><intent

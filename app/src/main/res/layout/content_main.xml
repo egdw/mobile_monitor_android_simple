@@ -37,14 +37,11 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/textView"
+                    <WebView
+                        android:id="@+id/web"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_gravity="center_vertical|center_horizontal"
-                        android:text="@string/description"
-                        android:textAppearance="@style/TextAppearance.AppCompat"
-                        tools:text="@string/description" />
+                        />
                 </LinearLayout>
 
                 <LinearLayout

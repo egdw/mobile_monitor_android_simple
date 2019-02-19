@@ -1,5 +1,6 @@
 package monitor.mobie.hdy.im;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.Toast;
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @SuppressLint("JavascriptInterface")
     private void init() {
         data = getSharedPreferences("data", MODE_MULTI_PROCESS);
         TabHost tabHost = (TabHost) findViewById(R.id.tabhost);
@@ -66,16 +69,8 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "请先勾选手机监听器的读取通知栏权限!", Toast.LENGTH_LONG).show();
             return;
         }
-        this.findViewById(R.id.textView).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                Uri uri = Uri.parse("http://sc.ftqq.com/3.version");
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.setData(uri);
-                startActivity(intent);
-            }
-        });
+        WebView webView = (WebView) findViewById(R.id.web);
+        webView.loadUrl("https://github.com/egdw/mobile_monitor_android_simple/wiki");
 
         //是否监听所有的应用?
         final ListView applicationList = (ListView) findViewById(R.id.applicationList);
