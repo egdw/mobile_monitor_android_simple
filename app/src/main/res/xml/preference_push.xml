@@ -14,6 +14,10 @@
             android:key="SCKEY"
             android:summary="当前为空"
             android:title="SCKEY" />
+        <PreferenceScreen
+            android:key="sckey_test"
+            android:title="推送测试"
+            android:summary="点击这里进行测试"/>
 
     </PreferenceCategory>
     <PreferenceCategory android:title="企业微信推送">
@@ -40,6 +44,22 @@
             android:summary="当前为空"
             android:singleLine="true"
             android:title="应用编号(agentid)" />
+        <Preference
+            android:key="wx_test"
+            android:title="推送测试"
+            android:summary="点击这里进行测试"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="关于">
+        <Preference
+            android:title="作者"
+            android:summary="恶搞大王"/>
+        <Preference
+            android:title="本程序完全免费开源"
+            android:summary="开源地址请点击这里"
+            ><intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://github.com/egdw/mobile_monitor_android_simple" />
+        </Preference>
     </PreferenceCategory>
 
 </PreferenceScreen>

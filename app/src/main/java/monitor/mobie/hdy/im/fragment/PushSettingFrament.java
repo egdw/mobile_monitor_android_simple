@@ -10,8 +10,10 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 
-import monitor.mobie.hdy.im.MainActivity;
 import monitor.mobie.hdy.im.R;
+import monitor.mobie.hdy.im.utils.ServerJiangUtils;
+import monitor.mobie.hdy.im.utils.ToastUtils;
+import monitor.mobie.hdy.im.utils.WXUtils;
 
 /**
  * Created by hdy on 2019/2/18.
@@ -31,7 +33,7 @@ public class PushSettingFrament extends PreferenceFragment {
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void init() {
-        SharedPreferences shp = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+        final SharedPreferences shp = PreferenceManager.getDefaultSharedPreferences(this.getContext());
         final EditTextPreference SCKEY = (EditTextPreference) findPreference("SCKEY");
         final EditTextPreference wx_corpid = (EditTextPreference) findPreference("wx_corpid");
         final EditTextPreference wx_corpsecret = (EditTextPreference) findPreference("wx_corpsecret");
@@ -42,6 +44,36 @@ public class PushSettingFrament extends PreferenceFragment {
         wx_corpid.setSummary(getValue(shp.getString("wx_corpid", "当前为空")));
         wx_corpsecret.setSummary(getValue(shp.getString("wx_corpsecret", "当前为空")));
         wx_agentid.setSummary(getValue(shp.getString("wx_agentid", "当前为空")));
+
+        findPreference("sckey_test").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                String sckey = shp.getString("SCKEY", "");
+                if (!sckey.isEmpty()) {
+                    ServerJiangUtils.sendTest(sckey);
+                    ToastUtils.toast(PushSettingFrament.this.getContext(),"发送测试完成");
+                } else {
+                    ToastUtils.toast(PushSettingFrament.this.getContext(),"请输入SCKEY");
+                }
+                return true;
+            }
+        });
+
+        findPreference("wx_test").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                String wxCorpid = shp.getString("wx_corpid", "");
+                String wxCorpsecret = shp.getString("wx_corpsecret", "");
+                String wxAgentid = shp.getString("wx_agentid", "");
+                if (!wxCorpid.isEmpty() && !wxCorpsecret.isEmpty() && !wxAgentid.isEmpty()) {
+                    WXUtils.sendTest(wxCorpid, wxCorpsecret, wxAgentid);
+                    ToastUtils.toast(PushSettingFrament.this.getContext(),"发送测试完成");
+                } else {
+                    ToastUtils.toast(PushSettingFrament.this.getContext(),"请填写完整数据!");
+                }
+                return true;
+            }
+        });
 
         sckey_enable.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override

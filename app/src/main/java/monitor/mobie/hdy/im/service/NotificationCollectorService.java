@@ -8,20 +8,12 @@ import android.os.PowerManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.support.annotation.RequiresApi;
-import android.util.Log;
 
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
-import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
 import monitor.mobie.hdy.im.database.AppinfosDatabase;
+import monitor.mobie.hdy.im.utils.ServerJiangUtils;
 import monitor.mobie.hdy.im.utils.WXUtils;
 
 /**
@@ -122,28 +114,7 @@ public class NotificationCollectorService extends NotificationListenerService {
                 StringBuilder sb = new StringBuilder();
                 sb.append("# ").append(title).append("\r\n")
                         .append("## ").append(text).append("\r\n");
-                //创建okHttpClient对象
-                OkHttpClient mOkHttpClient = new OkHttpClient();
-                //创建一个Request
-                //这里需要进行修改.
-                final Request request = new Request.Builder()
-                        .url("https://sc.ftqq.com/" + SCKEY + ".send?text=" + URLEncoder.encode(title) + "&desp=" + URLEncoder.encode(sb.toString()))
-                        .build();
-                //new call
-                Call call = mOkHttpClient.newCall(request);
-                //请求加入调度
-                call.enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Request request, IOException e) {
-                        //如果请求失败了...
-                    }
-
-                    @Override
-                    public void onResponse(final Response response) throws IOException {
-                        //String htmlStr =  response.body().string();
-
-                    }
-                });
+                ServerJiangUtils.send(SCKEY, title, sb);
             }
         }
     }

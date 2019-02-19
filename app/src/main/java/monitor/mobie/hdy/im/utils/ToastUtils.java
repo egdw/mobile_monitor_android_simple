@@ -8,15 +8,13 @@ import android.widget.Toast;
  */
 
 public class ToastUtils {
-    private Toast toast;
-    private Context context;
+    private static Toast toast;
+    private static Context context;
 
-    public ToastUtils(Context context) {
-        this.context = context;
-        toast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
-    }
-
-    public void toast(String message) {
+    public static void toast(Context context, String message) {
+        if (toast == null) {
+            toast = Toast.makeText(context, "", Toast.LENGTH_SHORT);
+        }
         toast.setText(message);
         toast.show();
     }
