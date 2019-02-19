@@ -197,7 +197,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
-                Log.i("查询的数据:", infos + "");
                 Message message = new Message();
                 message.what = 0x1;
                 message.obj = appInfos;

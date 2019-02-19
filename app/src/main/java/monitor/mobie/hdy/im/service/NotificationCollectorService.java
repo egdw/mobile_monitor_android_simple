@@ -19,6 +19,7 @@ import com.squareup.okhttp.Response;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 import monitor.mobie.hdy.im.database.AppinfosDatabase;
 import monitor.mobie.hdy.im.utils.WXUtils;
@@ -53,13 +54,31 @@ public class NotificationCollectorService extends NotificationListenerService {
         boolean wxEnable = data.getBoolean("wx_enable", true);
         //是否监听所有的应用
         boolean listenAll = data.getBoolean("listenAll", true);
-
+        //获取屏蔽关键词
+        String block = data.getString("block", "");
         boolean ifOpen = false;
 
-        Log.i("企业微信推送", wx_corpid);
-        Log.i("企业微信推送", wx_agentid);
-        Log.i("企业微信推送", wx_corpsecret);
-        Log.i("企业微信推送", wxEnable + "");
+        if (!block.isEmpty()) {
+            //判断是否包含关键词
+            boolean exist = false;
+            String text = sbn.getNotification().extras.get("android.text").toString();
+            String title = sbn.getNotification().extras.get("android.title").toString();
+            String[] split = block.split("\n");
+            for (int i = 0; i < split.length; i++) {
+                if (Pattern.matches(split[i], text) || text.contains(split[i])) {
+                    exist = true;
+                    break;
+                }
+                if (Pattern.matches(split[i], title) || title.contains(split[i])) {
+                    exist = true;
+                    break;
+                }
+            }
+            if (exist) {
+                //如果存在关键词就不推送了!
+                return;
+            }
+        }
 
         //新增支持是否点亮屏幕也推送数据.默认为关闭
         if (!light) {

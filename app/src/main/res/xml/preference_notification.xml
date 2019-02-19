@@ -11,9 +11,15 @@
         android:key="LIGHT"
         android:summary="开启则屏幕点亮也会通知"
         android:title="亮屏通知" />
+    <EditTextPreference
+        android:key="block"
+        android:singleLine="false"
+        android:title="指定关键词屏蔽(一行一个)"
+        android:summary="可以屏蔽包含指定关键词的通知(支持正则表达式)"/>
     <Preference
         android:key="list"
         android:dependency="listenAll"
         android:layout="@layout/application_list_layout" />
+
 
 </PreferenceScreen>

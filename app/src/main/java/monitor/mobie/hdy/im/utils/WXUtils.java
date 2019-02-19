@@ -41,7 +41,6 @@ public class WXUtils {
         }
         //把传进来的messgae转换成为json格式
         OkHttpClient mOkHttpClient = new OkHttpClient();
-        Log.e("发送的内容", JSON.toJSONString(new Send(agentId, message)));
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JSON.toJSONString(new Send(agentId, message)));
         Request request = new Request.Builder().url("https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=" + TOKEN).post(requestBody).build();
         Call call = mOkHttpClient.newCall(request);
@@ -56,7 +55,6 @@ public class WXUtils {
             @Override
             public void onResponse(Response response) throws IOException {
                 String body = response.body().string();
-                System.out.println(body);
                 Token token = JSON.parseObject(body, Token.class);
                 if (token.getErrcode() == 42001) {
                     //说明是token过期.
@@ -93,7 +91,6 @@ public class WXUtils {
                     TOKEN = token.getAccess_token();
                     //重新在发送一次.
                     send(corpid, corpsecret, agentId, message);
-                    Log.e("微信发送", "获取token成功" + TOKEN);
                 }
             }
         });
