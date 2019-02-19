@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">恶搞大王手机监听器</string>
     <string name="action_settings">Settings</string>
+    <string name="empty">当前为空</string>
     <string name="description">本程序推送微信基于「Server酱」，英文名「ServerChan」，是一款「程序员」和「服务器」之间的通信软件。  说人话？就是从服务器推报警和日志到手机的工具。登入：用GitHub账号登入网站，就能获得一个SCKEY（在「发送消息」页面） 绑定：点击「微信推送」，扫码关注同时即可完成绑定 发消息：往 http://sc.ftqq.com/SCKEY.send 发GET请求，就可以在微信里收到消息啦所以要申请微信推送必须要1.首先拥有一个github账号2.通过github账号登录到网页上3.获取[http://sc.ftqq.com/?c=code]网站上的SCKEY值4.在右下角登录的框中输入SCKEY值.!!!点击此处跳转到微信推送注册网页\n\n\n恶搞大王制作.首发自吾爱破解论坛.</string>
 </resources>

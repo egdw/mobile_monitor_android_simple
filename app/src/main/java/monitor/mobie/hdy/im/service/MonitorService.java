@@ -8,21 +8,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.telephony.TelephonyManager;
 
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import monitor.mobie.hdy.im.R;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
 
 /**
  * Created by hdy on 2017/9/9.
@@ -30,9 +23,6 @@ import okhttp3.OkHttpClient;
  */
 
 public class MonitorService extends Service {
-    private OkHttpClient client = new OkHttpClient();
-    public static final MediaType JSON
-            = MediaType.parse("application/json; charset=utf-8");
     private String SCKEY;
     private SharedPreferences data;
 
@@ -52,12 +42,10 @@ public class MonitorService extends Service {
      * 初始化操作
      */
     public void init() {
-        data = getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
-        SCKEY = data.getString("SCKEY", "");
-        if (SCKEY != null && !SCKEY.equals("")) {
+        if (!isNotificationListenerServiceEnabled(this)) {
             openNotificationAccess();
-            toggleNotificationListenerService();
         }
+        toggleNotificationListenerService();
         startForeground(this);
     }
 
@@ -94,7 +82,6 @@ public class MonitorService extends Service {
     }
 
 
-
     private void toggleNotificationListenerService() {
         PackageManager pm = getPackageManager();
         pm.setComponentEnabledSetting(new ComponentName(this, NotificationCollectorService.class),
@@ -109,5 +96,13 @@ public class MonitorService extends Service {
 
     private void openNotificationAccess() {
         startActivity(new Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS));
+    }
+
+    private static boolean isNotificationListenerServiceEnabled(Context context) {
+        Set<String> packageNames = NotificationManagerCompat.getEnabledListenerPackages(context);
+        if (packageNames.contains(context.getPackageName())) {
+            return true;
+        }
+        return false;
     }
 }

@@ -21,6 +21,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 
 import monitor.mobie.hdy.im.database.AppinfosDatabase;
+import monitor.mobie.hdy.im.utils.WXUtils;
 
 /**
  * 在这里可以监听数据
@@ -35,11 +36,33 @@ public class NotificationCollectorService extends NotificationListenerService {
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         SharedPreferences data = getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
+//        SharedPreferences data = PreferenceManager.getDefaultSharedPreferences(this);
         String SCKEY = data.getString("SCKEY", "");
+
+        //微信企业id
+        String wx_corpid = data.getString("wx_corpid", "");
+        //微信应用密钥
+        String wx_corpsecret = data.getString("wx_corpsecret", "");
+        //微信应用id
+        String wx_agentid = data.getString("wx_agentid", "");
+        //亮屏推送
         boolean light = data.getBoolean("LIGHT", false);
+        //是否打开server酱推送
+        boolean openSckey = data.getBoolean("SCKEY_enable", true);
+        //是否打开企业微信推送
+        boolean wxEnable = data.getBoolean("wx_enable", true);
+        //是否监听所有的应用
+        boolean listenAll = data.getBoolean("listenAll", true);
+
         boolean ifOpen = false;
+
+        Log.i("企业微信推送", wx_corpid);
+        Log.i("企业微信推送", wx_agentid);
+        Log.i("企业微信推送", wx_corpsecret);
+        Log.i("企业微信推送", wxEnable + "");
+
         //新增支持是否点亮屏幕也推送数据.默认为关闭
-        if (light) {
+        if (!light) {
 //            屏幕亮屏的情况下不发送任何信息.
             PowerManager powerManager = (PowerManager) this
                     .getSystemService(Context.POWER_SERVICE);
@@ -50,63 +73,98 @@ public class NotificationCollectorService extends NotificationListenerService {
             }
         }
 
-        if (SCKEY != null && !SCKEY.equals("")) {
-            try {
-                //获取应用的packageName
-                String packageName = sbn.getPackageName();
-                //这里要进行判断,不需要的packageName就不用通知了.
-                boolean listenAll = data.getBoolean("listenAll", true);
-                if (!listenAll) {
-                    //如果不是全部监听的话
-                    //这里判断当前的包名是否和用户勾选的应用包名相同.如果相同的话就进行通知
-                    //如果不相同就跳过.避免不必要的通知.
-
-                    SQLiteDatabase database = AppinfosDatabase.getReadInstance(this);
-                    HashMap<String, Object> infos = AppinfosDatabase.getInstance(this).selectAll(database);
-                    if (!infos.containsKey(packageName)) {
-                        return;
-                    }
-                }
-
-
-//              String tickerText = sbn.getNotification().tickerText.toString();
-                if (sbn.getNotification().extras.get("android.text") != null && sbn.getNotification().extras.get("android.title") != null) {
-                    String text = sbn.getNotification().extras.get("android.text").toString();
-                    String title = sbn.getNotification().extras.get("android.title").toString();
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("# ").append(title).append("\r\n")
-                            .append("## ").append(text).append("\r\n");
-                    //创建okHttpClient对象
-                    OkHttpClient mOkHttpClient = new OkHttpClient();
-                    //创建一个Request
-                    //这里需要进行修改.
-                    final Request request = new Request.Builder()
-                            .url("https://sc.ftqq.com/" + SCKEY + ".send?text=" + URLEncoder.encode(title) + "&desp=" + URLEncoder.encode(sb.toString()))
-                            .build();
-                    //new call
-                    Call call = mOkHttpClient.newCall(request);
-                    //请求加入调度
-                    call.enqueue(new Callback() {
-                        @Override
-                        public void onFailure(Request request, IOException e) {
-                            //如果请求失败了...
-                        }
-
-                        @Override
-                        public void onResponse(final Response response) throws IOException {
-                            //String htmlStr =  response.body().string();
-
-                        }
-                    });
-                }
-            } catch (Exception e) {
-                //如果出现异常.说明信息推送有问题.放入数据库当中存放.
-                e.printStackTrace();
+        try {
+            //进行Server酱推送
+            if (SCKEY != null && !SCKEY.equals("") && openSckey) {
+                sendServerJiang(sbn, listenAll, SCKEY);
             }
+
+
+            //进行企业微信推送
+            if (!wx_corpid.isEmpty() && !wx_agentid.isEmpty() && !wx_corpsecret.isEmpty() && wxEnable) {
+                sendWX(sbn, listenAll, wx_corpid, wx_agentid, wx_corpsecret);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private void sendServerJiang(StatusBarNotification sbn, boolean listenAll, String SCKEY) {
+        if (isAppNeedPush(sbn, listenAll)) {
+            if (sbn.getNotification().extras.get("android.text") != null && sbn.getNotification().extras.get("android.title") != null) {
+                String text = sbn.getNotification().extras.get("android.text").toString();
+                String title = sbn.getNotification().extras.get("android.title").toString();
+                StringBuilder sb = new StringBuilder();
+                sb.append("# ").append(title).append("\r\n")
+                        .append("## ").append(text).append("\r\n");
+                //创建okHttpClient对象
+                OkHttpClient mOkHttpClient = new OkHttpClient();
+                //创建一个Request
+                //这里需要进行修改.
+                final Request request = new Request.Builder()
+                        .url("https://sc.ftqq.com/" + SCKEY + ".send?text=" + URLEncoder.encode(title) + "&desp=" + URLEncoder.encode(sb.toString()))
+                        .build();
+                //new call
+                Call call = mOkHttpClient.newCall(request);
+                //请求加入调度
+                call.enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Request request, IOException e) {
+                        //如果请求失败了...
+                    }
+
+                    @Override
+                    public void onResponse(final Response response) throws IOException {
+                        //String htmlStr =  response.body().string();
+
+                    }
+                });
+            }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private void sendWX(StatusBarNotification sbn, boolean listenAll, String wx_corpid, String wx_agentid, String wx_corpsecret) {
+        if (isAppNeedPush(sbn, listenAll)) {
+            if (sbn.getNotification().extras.get("android.text") != null && sbn.getNotification().extras.get("android.title") != null) {
+                String text = sbn.getNotification().extras.get("android.text").toString();
+                String title = sbn.getNotification().extras.get("android.title").toString();
+                String packageName = sbn.getPackageName();
+                StringBuilder sb = new StringBuilder();
+                sb.append("# ").append(title).append("\r\n")
+                        .append("## 详细内容:").append(text).append("\r\n")
+                        .append("### 推送应用:").append(packageName).append("\r\n");
+                WXUtils.send(wx_corpid, wx_corpsecret, wx_agentid, sb.toString());
+            }
+        }
+    }
+
+    /**
+     * 判断app是否需要推送
+     *
+     * @param sbn
+     * @param listenAll
+     */
+    private boolean isAppNeedPush(StatusBarNotification sbn, boolean listenAll) {
+        //这里要进行判断,不需要的packageName就不用通知了.
+        if (!listenAll) {
+            String packageName = sbn.getPackageName();
+            //如果不是全部监听的话
+            //这里判断当前的包名是否和用户勾选的应用包名相同.如果相同的话就进行通知
+            //如果不相同就跳过.避免不必要的通知.
+
+            SQLiteDatabase database = AppinfosDatabase.getReadInstance(this);
+            HashMap<String, Object> infos = AppinfosDatabase.getInstance(this).selectAll(database);
+            if (!infos.containsKey(packageName)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

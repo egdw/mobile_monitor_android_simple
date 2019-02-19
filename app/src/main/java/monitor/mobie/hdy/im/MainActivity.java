@@ -13,18 +13,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NotificationManagerCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Switch;
+import android.widget.TabHost;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -37,17 +32,10 @@ import monitor.mobie.hdy.im.database.AppinfosDatabase;
 import monitor.mobie.hdy.im.model.AppInfo;
 import monitor.mobie.hdy.im.service.MonitorService;
 import monitor.mobie.hdy.im.service.NotificationCollectorService;
-import monitor.mobie.hdy.im.utils.ToastUtils;
 
 public class MainActivity extends AppCompatActivity {
     private Intent serviceIntent;
-    private MonitorService monitorService;
-    private boolean flag;
-    private Button button;
-    private FloatingActionButton fab;
-    private ToastUtils toastUtils;
     private SharedPreferences data;
-    private SharedPreferences.Editor edit;
     private AppInfosAdapter adapter = null;
 
     @Override
@@ -57,11 +45,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         init();
-        if (serviceIntent == null) {
-            serviceIntent = new Intent(MainActivity.this, MonitorService.class);
-            serviceIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startService(serviceIntent);
-        }
     }
 
 
@@ -73,16 +56,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void init() {
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openLoginDisplay();
-            }
-        });
-        toastUtils = new ToastUtils(MainActivity.this);
-        data = getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
-        edit = data.edit();
+        data = getSharedPreferences("data", MODE_MULTI_PROCESS);
+        TabHost tabHost = (TabHost) findViewById(R.id.tabhost);
+        tabHost.setup();
+        tabHost.addTab(tabHost.newTabSpec("tab1").setIndicator("介绍", null).setContent(R.id.tab1));
+        tabHost.addTab(tabHost.newTabSpec("tab2").setIndicator("推送设置", null).setContent(R.id.tab2));
+        tabHost.addTab(tabHost.newTabSpec("tab3").setIndicator("通知设置", null).setContent(R.id.tab3));
         if (!isNotificationListenerServiceEnabled(this)) {
             Toast.makeText(this, "请先勾选手机监听器的读取通知栏权限!", Toast.LENGTH_LONG).show();
             return;
@@ -97,6 +76,41 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        //是否监听所有的应用?
+        final ListView applicationList = (ListView) findViewById(R.id.applicationList);
+        myHandler = new Handler() {
+            public void handleMessage(Message msg) {
+                if (msg.what == 0x1) {
+                    applicationList.setVisibility(View.VISIBLE);
+                    adapter = new AppInfosAdapter(MainActivity.this, (List<AppInfo>) msg.obj);
+                    applicationList.setAdapter(adapter);
+                } else if (msg.what == 0x2) {
+                    applicationList.setVisibility(View.INVISIBLE);
+                } else if (msg.what == 0x3) {
+                    applicationList.setVisibility(View.VISIBLE);
+                    if (adapter == null) {
+                        Toast.makeText(MainActivity.this, "加载应用中..请耐心等待", Toast.LENGTH_LONG).show();
+                        getAppsThread();
+                    }
+                } else if (msg.what == 0x4) {
+                    //表示重启服务
+                    if (serviceIntent != null) {
+                        stopService(serviceIntent);
+                    }
+//                    startService(serviceIntent);
+                }
+
+            }
+        };
+        if (data.getBoolean("listenAll", true) == false) {
+            Toast.makeText(MainActivity.this, "加载应用中..请耐心等待", Toast.LENGTH_LONG).show();
+            getAppsThread();
+        }
+
+        serviceIntent = new Intent(MainActivity.this, MonitorService.class);
+        serviceIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startService(serviceIntent);
     }
 
     @Override
@@ -110,79 +124,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private Handler myHandler = null;
+    public Handler myHandler = null;
 
-    private void openLoginDisplay() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        View view = getLayoutInflater().inflate(R.layout.login_layout, null);
-        builder.setView(view);
-        final AlertDialog dialog = builder.show();
-        final EditText SCKEY_input = (EditText) view.findViewById(R.id.sckey_input);
-        SCKEY_input.setText(data.getString("SCKEY", ""));
-        final Switch aSwitch = (Switch) view.findViewById(R.id.light);
-        aSwitch.setChecked(data.getBoolean("LIGHT", false));
-        Button button = (Button) view.findViewById(R.id.login_button);
-
-        //是否监听所有的应用?
-        final Switch listenAllSwitch = (Switch) view.findViewById(R.id.listenAll);
-        listenAllSwitch.setChecked(data.getBoolean("listenAll", true));
-        final ListView applicationList = (ListView) view.findViewById(R.id.applicationList);
-        myHandler = new Handler() {
-            public void handleMessage(Message msg) {
-                applicationList.setVisibility(View.VISIBLE);
-                adapter = new AppInfosAdapter(MainActivity.this, (List<AppInfo>) msg.obj);
-                applicationList.setAdapter(adapter);
-            }
-        };
-        if (data.getBoolean("listenAll", true) == false) {
-            Toast.makeText(MainActivity.this, "加载应用中..请耐心等待", Toast.LENGTH_LONG).show();
-            getAppsThread();
-        }
-        listenAllSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!isChecked) {
-                    Toast.makeText(MainActivity.this, "加载应用中..请耐心等待", Toast.LENGTH_LONG).show();
-                    getAppsThread();
-                } else {
-                    applicationList.setVisibility(View.INVISIBLE);
-                }
-            }
-        });
-        if (listenAllSwitch.isChecked()) {
-            applicationList.setVisibility(View.INVISIBLE);
-        } else {
-            applicationList.setVisibility(View.VISIBLE);
-        }
-
-        serviceIntent = new Intent(MainActivity.this, MonitorService.class);
-        serviceIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startService(serviceIntent);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //这里进行提交登录
-                edit.putString("SCKEY", SCKEY_input.getText().toString()).commit();
-                edit.putBoolean("LIGHT", aSwitch.isChecked()).commit();
-                edit.putBoolean("listenAll", listenAllSwitch.isChecked()).commit();
-                SQLiteDatabase writeInstance =
-                        AppinfosDatabase.getWriteInstance(MainActivity.this);
-                AppinfosDatabase.getInstance(MainActivity.this).removeAll(writeInstance);
-                if (!listenAllSwitch.isChecked()) {
-                    List<AppInfo> appInfos = adapter.getAppInfos();
-                    for (int i = 0; i < appInfos.size(); i++) {
-                        AppInfo appInfo = appInfos.get(i);
-                        //如果勾选了.但是没有查到的话.就插入到数据库当中
-                        if (appInfo.isOpen()) {
-                            AppinfosDatabase.getInstance(MainActivity.this).insert(writeInstance, appInfo.getPackageName());
-                        }
-                    }
-                }
-
-                dialog.dismiss();
-            }
-        });
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -232,11 +175,11 @@ public class MainActivity extends AppCompatActivity {
         return appInfos;
     }
 
-    public void getAppsThread(){
+    public void getAppsThread() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Log.i("开始...","");
+                Log.i("开始...", "");
                 List<AppInfo> appInfos = getAppInfos();
                 //获取当前所有的应用信息.
                 //从数据库读取从前同意的应用信息
@@ -254,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
-                Log.i("查询的数据:",infos+"");
+                Log.i("查询的数据:", infos + "");
                 Message message = new Message();
                 message.what = 0x1;
                 message.obj = appInfos;

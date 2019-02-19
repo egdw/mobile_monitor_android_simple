@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="listenAll"
+        android:summary="开启则监听所有通知,关闭则选择应用监听"
+        android:title="监听所有通知" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="LIGHT"
+        android:summary="开启则屏幕点亮也会通知"
+        android:title="亮屏通知" />
+    <Preference
+        android:key="list"
+        android:dependency="listenAll"
+        android:layout="@layout/application_list_layout" />
+
+</PreferenceScreen>
