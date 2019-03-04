@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private Intent serviceIntent;
     private SharedPreferences data;
     private AppInfosAdapter adapter = null;
+    private ListView applicationList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //是否监听所有的应用?
-        final ListView applicationList = (ListView) findViewById(R.id.applicationList);
+        applicationList = (ListView) findViewById(R.id.applicationList);
         myHandler = new Handler() {
             public void handleMessage(Message msg) {
                 if (msg.what == 0x1) {
@@ -117,6 +118,18 @@ public class MainActivity extends AppCompatActivity {
         startService(serviceIntent);
     }
 
+
+    @Override
+    protected void onPause() {
+        //当界面返回到桌面之后.清除通知设置当中的数据.减少内存占有
+        if (applicationList != null) {
+            applicationList.setAdapter(null);
+            adapter = null;
+        }
+        super.onPause();
+    }
+
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -125,6 +138,10 @@ public class MainActivity extends AppCompatActivity {
             toggleNotificationListenerService();
             Toast.makeText(this, "请先勾选手机监听器的读取通知栏权限!", Toast.LENGTH_LONG).show();
             return;
+        }
+        if (applicationList != null && applicationList.getVisibility() == View.VISIBLE && applicationList.getAdapter() == null) {
+            //说明需要重新获取数据
+            myHandler.sendEmptyMessage(0x3);
         }
     }
 
