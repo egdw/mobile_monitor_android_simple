@@ -19,7 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.webkit.WebView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.Toast;
@@ -69,8 +69,17 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "请先勾选手机监听器的读取通知栏权限!", Toast.LENGTH_LONG).show();
             return;
         }
-        WebView webView = (WebView) findViewById(R.id.web);
-        webView.loadUrl("https://github.com/egdw/mobile_monitor_android_simple/wiki");
+        Button button = (Button) findViewById(R.id.desc_button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                Uri uri = Uri.parse("https://github.com/egdw/mobile_monitor_android_simple/wiki");
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setData(uri);
+                startActivity(intent);
+            }
+        });
 
         //是否监听所有的应用?
         final ListView applicationList = (ListView) findViewById(R.id.applicationList);

@@ -37,11 +37,11 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
-                    <WebView
-                        android:id="@+id/web"
+                    <Button
+                        android:id="@+id/desc_button"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        />
+                        android:layout_height="wrap_content"
+                        android:text="点击打开教程和介绍" />
                 </LinearLayout>
 
                 <LinearLayout
