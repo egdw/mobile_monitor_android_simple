@@ -97,6 +97,6 @@ public class WXUtils {
     }
 
     public static void sendTest(final String corpid, final String corpsecret, final String agentId){
-        getToken(corpid,corpsecret,agentId,"测试内容");
+        send(corpid,corpsecret,agentId,"测试内容");
     }
 }

@@ -9,6 +9,8 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.support.annotation.RequiresApi;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
@@ -127,9 +129,11 @@ public class NotificationCollectorService extends NotificationListenerService {
                 String title = sbn.getNotification().extras.get("android.title").toString();
                 String packageName = sbn.getPackageName();
                 StringBuilder sb = new StringBuilder();
-                sb.append("# ").append(title).append("\r\n")
-                        .append("## 详细内容:").append(text).append("\r\n")
-                        .append("### 推送应用:").append(packageName).append("\r\n");
+
+                sb.append("标题： ").append(title).append("\r\n")
+                        .append("内容：").append(text).append("\r\n")
+                        .append("应用：").append(packageName).append("\r\n")
+                        .append("时间：").append(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date())).append("\r\n");
                 WXUtils.send(wx_corpid, wx_corpsecret, wx_agentid, sb.toString());
             }
         }

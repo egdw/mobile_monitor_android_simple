@@ -7,14 +7,14 @@ package monitor.mobie.hdy.im.model;
 
 public class Send {
     private String touser = "@all";
-    private String msgtype = "markdown";
+    private String msgtype = "text";
     private String agentid;
-    private MarkDown markdown;
+    private MarkDown text;
 
 
     public Send(String agentid, String message) {
         this.agentid = agentid;
-        this.markdown = new MarkDown(message);
+        this.text = new MarkDown(message);
     }
 
     public String getTouser() {
@@ -41,12 +41,12 @@ public class Send {
         this.agentid = agentid;
     }
 
-    public MarkDown getMarkdown() {
-        return markdown;
+    public MarkDown getText() {
+        return text;
     }
 
-    public void setMarkdown(MarkDown markdown) {
-        this.markdown = markdown;
+    public void setText(MarkDown markdown) {
+        this.text = markdown;
     }
 
     private class MarkDown {
