@@ -5,14 +5,15 @@
 
 目前已经首发在吾爱破解[地址在这里](https://www.52pojie.cn/thread-830341-1-1.html)
 
-##最新更新
+## 最新更新
+
 优化了企业微信推送，现在已经可以支持企业微信通知转发的微信上。（我知道很多人可能担心server酱的安全问题）
 推荐大家使用企业微信转微信的方式。具体的方法基本和下面的企业微信设置方法差不多，唯一的区别就是需要扫描一个企业微信的二维码就可以把企业微信的推送
 转发到微信上了。
 
 ## 如何将企业微信的通知转发到微信上步骤
 1. 首先先按照[企业微信设置方法](https://github.com/egdw/mobile_monitor_android_simple/wiki/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E8%AE%BE%E7%BD%AE%E6%96%B9%E6%B3%95)
-2. [点击这个链接](https://work.weixin.qq.com/wework_admin/frame#apps)
+2. [点击这个链接](https://work.weixin.qq.com/wework_admin/frame#profile/wxPlugin)
 3. 找到【邀请关注】旁边的二维码，用你的微信扫描一下即可。以后所有的企业微信通知都会转发到你的微信上，不需要再下载企业微信了。
 
 ## 使用方法
