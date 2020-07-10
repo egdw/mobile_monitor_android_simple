@@ -1,5 +1,7 @@
 package monitor.mobie.hdy.im.utils;
 
+import android.content.Context;
+
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
@@ -9,6 +11,8 @@ import com.squareup.okhttp.Response;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Random;
+
+import monitor.mobie.hdy.im.R;
 
 /**
  * Created by hdy on 2019/2/19.
@@ -43,14 +47,12 @@ public class ServerJiangUtils {
     }
 
     //用于测试
-    public static void sendTest(String SCKEY){
+    public static void sendTest(Context context,String SCKEY){
         //创建okHttpClient对象
         OkHttpClient mOkHttpClient = new OkHttpClient();
         //创建一个Request
-        //这里需要进行修改.
-        Random random = new Random();
         final Request request = new Request.Builder()
-                .url("https://sc.ftqq.com/" + SCKEY + ".send?text=" + URLEncoder.encode("测试发送"+random.nextDouble()) + "&desp=" + URLEncoder.encode("测试发送"+random.nextDouble()))
+                .url("https://sc.ftqq.com/" + SCKEY + ".send?text=" + URLEncoder.encode(context.getResources().getString(R.string.test_messgae)) + "&desp=" + URLEncoder.encode("恶搞大王通知转发器测试推送"))
                 .build();
         //new call
         Call call = mOkHttpClient.newCall(request);

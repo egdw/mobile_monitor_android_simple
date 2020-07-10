@@ -50,7 +50,7 @@ public class PushSettingFrament extends PreferenceFragment {
             public boolean onPreferenceClick(Preference preference) {
                 String sckey = shp.getString("SCKEY", "");
                 if (!sckey.isEmpty()) {
-                    ServerJiangUtils.sendTest(sckey);
+                    ServerJiangUtils.sendTest(PushSettingFrament.this.getContext(),sckey);
                     ToastUtils.toast(PushSettingFrament.this.getContext(),"发送测试完成");
                 } else {
                     ToastUtils.toast(PushSettingFrament.this.getContext(),"请输入SCKEY");
@@ -66,7 +66,7 @@ public class PushSettingFrament extends PreferenceFragment {
                 String wxCorpsecret = shp.getString("wx_corpsecret", "");
                 String wxAgentid = shp.getString("wx_agentid", "");
                 if (!wxCorpid.isEmpty() && !wxCorpsecret.isEmpty() && !wxAgentid.isEmpty()) {
-                    WXUtils.sendTest(wxCorpid, wxCorpsecret, wxAgentid);
+                    WXUtils.sendTest(PushSettingFrament.this.getContext(),wxCorpid, wxCorpsecret, wxAgentid);
                     ToastUtils.toast(PushSettingFrament.this.getContext(),"发送测试完成");
                 } else {
                     ToastUtils.toast(PushSettingFrament.this.getContext(),"请填写完整数据!");

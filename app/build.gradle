@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 26
     buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "monitor.mobie.hdy.im"
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 3
         versionName "3.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -20,16 +20,18 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.squareup.okhttp:okhttp:2.4.0'
-    compile 'com.squareup.okio:okio:1.5.0'
-    compile 'com.android.support:appcompat-v7:25.1.0'
-    compile 'com.android.support:design:25.1.0'
-    compile 'com.squareup.okhttp3:okhttp:3.9.0'
-    compile 'com.alibaba:fastjson:1.1.34.android'
-    testCompile 'junit:junit:4.12'
-    compile files('src/libs/okio-1.13.0.jar')
+    implementation 'com.squareup.okhttp:okhttp:2.4.0'
+    implementation 'com.squareup.okio:okio:1.5.0'
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:design:26.1.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.9.0'
+    implementation 'com.alibaba:fastjson:1.1.34.android'
+    implementation 'com.dou361.update:jjdxm-update:1.0.6'
+    implementation 'com.dou361.download:jjdxm-download:1.0.3'
+    testImplementation 'junit:junit:4.12'
+//    compile files('src/libs/okio-1.13.0.jar')
 }

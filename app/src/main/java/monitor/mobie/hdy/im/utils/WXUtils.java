@@ -1,5 +1,6 @@
 package monitor.mobie.hdy.im.utils;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
@@ -13,6 +14,7 @@ import com.squareup.okhttp.Response;
 
 import java.io.IOException;
 
+import monitor.mobie.hdy.im.R;
 import monitor.mobie.hdy.im.model.Send;
 import monitor.mobie.hdy.im.model.Token;
 
@@ -96,7 +98,7 @@ public class WXUtils {
         });
     }
 
-    public static void sendTest(final String corpid, final String corpsecret, final String agentId){
-        send(corpid,corpsecret,agentId,"测试内容");
+    public static void sendTest(Context context, String corpid, final String corpsecret, final String agentId){
+        send(corpid,corpsecret,agentId,context.getResources().getString(R.string.test_messgae));
     }
 }
