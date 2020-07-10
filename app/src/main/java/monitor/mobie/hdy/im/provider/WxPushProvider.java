@@ -1,6 +1,7 @@
-package monitor.mobie.hdy.im.utils;
+package monitor.mobie.hdy.im.provider;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
@@ -13,6 +14,8 @@ import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import monitor.mobie.hdy.im.R;
 import monitor.mobie.hdy.im.model.Send;
@@ -23,7 +26,7 @@ import monitor.mobie.hdy.im.model.Token;
  * 用于封装企业微信推送
  */
 
-public class WXUtils {
+public class WxPushProvider extends PushProvider {
     //保存当前的token信息
     private static String TOKEN;
 
@@ -35,7 +38,7 @@ public class WXUtils {
      * @param agentId    应用代理id
      * @param message    需要发送的内容
      */
-    public static void send(final String corpid, final String corpsecret, final String agentId, final String message) {
+    private void send(final String corpid, final String corpsecret, final String agentId, final String message) {
         if (TOKEN == null) {
             //尝试获取token
             getToken(corpid, corpsecret, agentId, message);
@@ -72,7 +75,7 @@ public class WXUtils {
     }
 
 
-    private static void getToken(final String corpid, final String corpsecret, final String agentId, final String message) {
+    private void getToken(final String corpid, final String corpsecret, final String agentId, final String message) {
         OkHttpClient mOkHttpClient = new OkHttpClient();
         final Request request = new Request.Builder()
                 .url("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=" + corpid + "&corpsecret=" + corpsecret)
@@ -98,7 +101,43 @@ public class WXUtils {
         });
     }
 
-    public static void sendTest(Context context, String corpid, final String corpsecret, final String agentId){
-        send(corpid,corpsecret,agentId,context.getResources().getString(R.string.test_messgae));
+    public void sendTest(String corpid, final String corpsecret, final String agentId){
+        send(corpid,corpsecret,agentId,getContext().getResources().getString(R.string.test_messgae));
+    }
+
+
+    @Override
+    public void send(String title, String text,String packageName) {
+        SharedPreferences data = getContext().getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
+        //是否打开企业微信推送
+        boolean wxEnable = data.getBoolean("wx_enable", true);
+        if(wxEnable){
+            //微信企业id
+            String wx_corpid = data.getString("wx_corpid", null);
+            //微信应用密钥
+            String wx_corpsecret = data.getString("wx_corpsecret", null);
+            //微信应用id
+            String wx_agentid = data.getString("wx_agentid", null);
+            if (title!=null && text!=null && wx_corpid!=null && wx_corpsecret!=null && wx_agentid != null){
+                StringBuilder sb = new StringBuilder();
+                sb.append("标题： ").append(title).append("\r\n")
+                        .append("内容：").append(text).append("\r\n")
+                        .append("应用：").append(packageName).append("\r\n")
+                        .append("时间：").append(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date())).append("\r\n");
+                send(wx_corpid, wx_corpsecret, wx_agentid, sb.toString());
+            }
+
+        }
+    }
+
+    @Override
+    public void sendTest() {
+        SharedPreferences data = getContext().getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
+        String wx_corpid = data.getString("wx_corpid", null);
+        //微信应用密钥
+        String wx_corpsecret = data.getString("wx_corpsecret", null);
+        //微信应用id
+        String wx_agentid = data.getString("wx_agentid", null);
+        sendTest(wx_corpid,wx_corpsecret,wx_agentid);
     }
 }

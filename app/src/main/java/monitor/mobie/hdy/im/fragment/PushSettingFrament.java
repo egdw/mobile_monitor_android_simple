@@ -7,13 +7,13 @@ import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 
 import monitor.mobie.hdy.im.R;
-import monitor.mobie.hdy.im.utils.ServerJiangUtils;
+import monitor.mobie.hdy.im.provider.PushProvider;
+import monitor.mobie.hdy.im.provider.ServerJiangProvider;
 import monitor.mobie.hdy.im.utils.ToastUtils;
-import monitor.mobie.hdy.im.utils.WXUtils;
+import monitor.mobie.hdy.im.provider.WxPushProvider;
 
 /**
  * Created by hdy on 2019/2/18.
@@ -50,7 +50,9 @@ public class PushSettingFrament extends PreferenceFragment {
             public boolean onPreferenceClick(Preference preference) {
                 String sckey = shp.getString("SCKEY", "");
                 if (!sckey.isEmpty()) {
-                    ServerJiangUtils.sendTest(PushSettingFrament.this.getContext(),sckey);
+                    ServerJiangProvider provider = new ServerJiangProvider();
+                    provider.setContext(PushSettingFrament.this.getContext());
+                    provider.sendTest();
                     ToastUtils.toast(PushSettingFrament.this.getContext(),"发送测试完成");
                 } else {
                     ToastUtils.toast(PushSettingFrament.this.getContext(),"请输入SCKEY");
@@ -66,7 +68,9 @@ public class PushSettingFrament extends PreferenceFragment {
                 String wxCorpsecret = shp.getString("wx_corpsecret", "");
                 String wxAgentid = shp.getString("wx_agentid", "");
                 if (!wxCorpid.isEmpty() && !wxCorpsecret.isEmpty() && !wxAgentid.isEmpty()) {
-                    WXUtils.sendTest(PushSettingFrament.this.getContext(),wxCorpid, wxCorpsecret, wxAgentid);
+                    PushProvider provider = new WxPushProvider();
+                    provider.setContext(PushSettingFrament.this.getContext());
+                    provider.sendTest();
                     ToastUtils.toast(PushSettingFrament.this.getContext(),"发送测试完成");
                 } else {
                     ToastUtils.toast(PushSettingFrament.this.getContext(),"请填写完整数据!");
