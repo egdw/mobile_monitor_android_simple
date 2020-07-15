@@ -23,8 +23,6 @@ import monitor.mobie.hdy.im.R;
  */
 
 public class MonitorService extends Service {
-    private String SCKEY;
-    private SharedPreferences data;
 
     @Nullable
     @Override
@@ -62,7 +60,6 @@ public class MonitorService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-//        uploadAll();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -71,7 +68,7 @@ public class MonitorService extends Service {
         //保持为前台应用状态
         NotificationManager nm = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-        builder.setContentTitle("手机监控器监听通知栏中...")
+        builder.setContentTitle("通知转发器监听通知栏中...")
                 .setContentText("")
                 .setWhen(System.currentTimeMillis())
                 .setPriority(Notification.PRIORITY_MIN)
