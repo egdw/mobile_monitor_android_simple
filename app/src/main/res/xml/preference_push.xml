@@ -42,7 +42,6 @@
             android:dependency="wx_enable"
             android:key="wx_agentid"
             android:summary="当前为空（支持多行输入多个应用编号）"
-            android:singleLine="true"
             android:title="应用编号(agentid)" />
         <Preference
             android:key="wx_test"

@@ -102,7 +102,14 @@ public class WxPushProvider extends PushProvider {
     }
 
     public void sendTest(String corpid, final String corpsecret, final String agentId){
-        send(corpid,corpsecret,agentId,getContext().getResources().getString(R.string.test_messgae));
+        String[] wx_corpid_spilt = spilt(corpid);
+        String[] wx_corpsecret_spilt = spilt(corpsecret);
+        String[] wx_agentid_spilt = spilt(agentId);
+        if (wx_agentid_spilt!=null && wx_corpsecret_spilt!=null && wx_corpid_spilt!=null && wx_agentid_spilt.length == wx_corpsecret_spilt.length && wx_agentid_spilt.length == wx_corpid_spilt.length) {
+            for (int i = 0;i<wx_agentid_spilt.length;i++) {
+                send(wx_corpid_spilt[i], wx_corpsecret_spilt[i], wx_agentid_spilt[i], getContext().getResources().getString(R.string.test_messgae)+i);
+            }
+        }
     }
 
 
@@ -114,19 +121,27 @@ public class WxPushProvider extends PushProvider {
         if(wxEnable){
             //微信企业id
             String wx_corpid = data.getString("wx_corpid", null);
+            String[] wx_corpid_spilt = spilt(wx_corpid);
             //微信应用密钥
             String wx_corpsecret = data.getString("wx_corpsecret", null);
+            String[] wx_corpsecret_spilt = spilt(wx_corpsecret);
             //微信应用id
             String wx_agentid = data.getString("wx_agentid", null);
-            if (title!=null && text!=null && wx_corpid!=null && wx_corpsecret!=null && wx_agentid != null){
+            String[] wx_agentid_spilt = spilt(wx_agentid);
+
+            //判断是否数据数量是否相同,如果不相同则不能提交
+            if (wx_agentid_spilt!=null && wx_corpsecret_spilt!=null && wx_corpid_spilt!=null && wx_agentid_spilt.length == wx_corpsecret_spilt.length && wx_agentid_spilt.length == wx_corpid_spilt.length) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("标题： ").append(title).append("\r\n")
                         .append("内容：").append(text).append("\r\n")
                         .append("应用：").append(packageName).append("\r\n")
                         .append("时间：").append(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date())).append("\r\n");
-                send(wx_corpid, wx_corpsecret, wx_agentid, sb.toString());
+                for(int i = 0;i<wx_agentid_spilt.length;i++) {
+                    if (title != null && text != null && wx_corpid != null && wx_corpsecret != null && wx_agentid != null) {
+                        send(wx_corpid_spilt[i], wx_corpsecret_spilt[i], wx_agentid_spilt[i], sb.toString());
+                    }
+                }
             }
-
         }
     }
 

@@ -45,27 +45,10 @@ public class ServerJiangProvider extends PushProvider {
 
     //用于测试
     private void sendTest(String SCKEY){
-        //创建okHttpClient对象
-        OkHttpClient mOkHttpClient = new OkHttpClient();
-        //创建一个Request
-        final Request request = new Request.Builder()
-                .url("https://sc.ftqq.com/" + SCKEY + ".send?text=" + URLEncoder.encode("恶搞大王通知转发器测试推送") + "&desp=" + URLEncoder.encode(getContext().getResources().getString(R.string.test_messgae)))
-                .build();
-        //new call
-        Call call = mOkHttpClient.newCall(request);
-        //请求加入调度
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-                //如果请求失败了...
-                saveErrorProvider(0);
-            }
-
-            @Override
-            public void onResponse(final Response response) throws IOException {
-
-            }
-        });
+        String[] spilt = spilt(SCKEY);
+        for (int i = 0;i<spilt.length;i++) {
+            send(spilt[i], "恶搞大王通知转发器Server酱测试推送"+i, new StringBuilder(getContext().getResources().getString(R.string.test_messgae)));
+        }
     }
 
     @Override
@@ -74,11 +57,14 @@ public class ServerJiangProvider extends PushProvider {
         boolean openSckey = data.getBoolean("SCKEY_enable", true);
         if (openSckey){
             String SCKEY = data.getString("SCKEY", null);
-            if (SCKEY != null && title != null && text != null){
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("# ").append(title).append("\r\n")
-                            .append("## ").append(text).append("\r\n");
-                    send(SCKEY, title, sb);
+            String[] spilt = spilt(SCKEY);
+            StringBuilder sb = new StringBuilder();
+            sb.append("# ").append(title).append("\r\n")
+                    .append("## ").append(text).append("\r\n");
+            for (String sckey:spilt) {
+                if (sckey != null && title != null && text != null) {
+                    send(sckey, title, sb);
+                }
             }
         }
     }

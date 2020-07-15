@@ -24,7 +24,10 @@ import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.Toast;
 import com.dou361.update.UpdateHelper;
+import com.dou361.update.listener.UpdateListener;
 import com.dou361.update.type.UpdateType;
+import com.dou361.update.util.InstallUtil;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,15 +48,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        init();
         //检查更新
+        Log.i("APP checking update","loading");
         UpdateConfig.init(this);
         UpdateHelper.getInstance()
                 .setUpdateType(UpdateType.autoupdate)
                 .check(MainActivity.this);
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        init();
     }
 
 

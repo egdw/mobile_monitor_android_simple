@@ -67,15 +67,26 @@ public class PushSettingFrament extends PreferenceFragment {
                 String wxCorpid = shp.getString("wx_corpid", "");
                 String wxCorpsecret = shp.getString("wx_corpsecret", "");
                 String wxAgentid = shp.getString("wx_agentid", "");
-                if (!wxCorpid.isEmpty() && !wxCorpsecret.isEmpty() && !wxAgentid.isEmpty()) {
-                    PushProvider provider = new WxPushProvider();
-                    provider.setContext(PushSettingFrament.this.getContext());
-                    provider.sendTest();
-                    ToastUtils.toast(PushSettingFrament.this.getContext(),"发送测试完成");
-                } else {
-                    ToastUtils.toast(PushSettingFrament.this.getContext(),"请填写完整数据!");
+                String[] wx_corpid_spilt = spilt(wxCorpid);
+                String[] wx_corpsecret_spilt = spilt(wxCorpsecret);
+                String[] wx_agentid_spilt = spilt(wxAgentid);
+                if (wx_agentid_spilt!=null && wx_corpsecret_spilt!=null && wx_corpid_spilt!=null && wx_agentid_spilt.length == wx_corpsecret_spilt.length && wx_agentid_spilt.length == wx_corpid_spilt.length) {
+                    if (!wxCorpid.isEmpty() && !wxCorpsecret.isEmpty() && !wxAgentid.isEmpty()) {
+                        PushProvider provider = new WxPushProvider();
+                        provider.setContext(PushSettingFrament.this.getContext());
+                        provider.sendTest();
+                        ToastUtils.toast(PushSettingFrament.this.getContext(),"发送测试完成");
+                    } else {
+                        ToastUtils.toast(PushSettingFrament.this.getContext(),"请填写完整数据!");
+                    }
+                    return true;
                 }
-                return true;
+                if (wx_agentid_spilt == null || wx_corpid_spilt == null || wx_corpsecret_spilt == null){
+                    ToastUtils.toast(PushSettingFrament.this.getContext(),"请填写完整数据!");
+                }else{
+                    ToastUtils.toast(PushSettingFrament.this.getContext(),"企业编号 企业密钥 应用编号 数量不一致!请重新检查!!");
+                }
+                return false;
             }
         });
 
@@ -142,5 +153,17 @@ public class PushSettingFrament extends PreferenceFragment {
             return "当前为空";
         }
         return get;
+    }
+
+    /**
+     * 切分多个换行输入
+     * @param context 输入的文本
+     * @return
+     */
+    private String[] spilt(String context){
+        if(context!=null){
+            return context.trim().split("\n");
+        }
+        return null;
     }
 }

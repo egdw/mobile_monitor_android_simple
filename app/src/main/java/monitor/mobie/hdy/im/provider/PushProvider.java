@@ -38,4 +38,17 @@ public abstract class PushProvider {
 
     }
 
+
+    /**
+     * 切分多个换行输入
+     * @param context 输入的文本
+     * @return
+     */
+    public String[] spilt(String context){
+        if(context!=null){
+            return context.trim().split("\n");
+        }
+        return null;
+    }
+
 }
