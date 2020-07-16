@@ -12,12 +12,12 @@
         <EditTextPreference
             android:dependency="SCKEY_enable"
             android:key="SCKEY"
-            android:summary="当前为空"
+            android:summary="当前为空（支持多行输入多个SCKEY）"
             android:title="SCKEY" />
         <PreferenceScreen
             android:key="sckey_test"
-            android:title="推送测试"
-            android:summary="点击这里进行测试"/>
+            android:title="@string/try_test_title"
+            android:summary="@string/try_test"/>
 
     </PreferenceCategory>
     <PreferenceCategory android:title="企业微信推送">
@@ -31,34 +31,61 @@
         <EditTextPreference
             android:dependency="wx_enable"
             android:key="wx_corpid"
-            android:summary="当前为空"
+            android:summary="当前为空（支持多行输入多个企业编号）"
             android:title="企业编号(corpid)" />
         <EditTextPreference
             android:dependency="wx_enable"
             android:key="wx_corpsecret"
-            android:summary="当前为空"
+            android:summary="当前为空（支持多行输入多个应用密匙）"
             android:title="应用密匙(corpsecret)" />
         <EditTextPreference
             android:dependency="wx_enable"
             android:key="wx_agentid"
-            android:summary="当前为空"
-            android:singleLine="true"
+            android:summary="当前为空（支持多行输入多个应用编号）"
             android:title="应用编号(agentid)" />
         <Preference
             android:key="wx_test"
-            android:title="推送测试"
-            android:summary="点击这里进行测试"/>
+            android:title="@string/try_test_title"
+            android:summary="@string/try_test"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="自定义推送">
+        <SwitchPreference
+            android:checked="false"
+            android:key="coustom_enable"
+            android:summary="自定义推送开关"
+            android:summaryOff="已关闭自定义推送"
+            android:summaryOn="已开启自定义推送"
+            android:title="启用" />
+        <EditTextPreference
+            android:dependency="coustom_enable"
+            android:key="coustom_url"
+            android:summary="当前为空（支持多行输入多个链接）"
+            android:title="请求地址" />
+        <EditTextPreference
+            android:dependency="coustom_enable"
+            android:key="coustom_method"
+            android:summary="当前为空（支持多行输入多个请求方式）"
+            android:title="请求方式" />
+        <EditTextPreference
+            android:dependency="coustom_enable"
+            android:key="coustom_remark"
+            android:summary="当前为空"
+            android:title="备注信息" />
+        <Preference
+            android:key="coustom_test"
+            android:title="@string/try_test_title"
+            android:summary="@string/try_test"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="关于">
         <Preference
             android:title="作者"
-            android:summary="恶搞大王"/>
+            android:summary="@string/author"/>
         <Preference
             android:title="当前版本"
-            android:summary="3.0"/>
+            android:summary="@string/version"/>
         <Preference
-            android:title="本程序完全免费开源"
-            android:summary="开源地址请点击这里"
+            android:title="@string/about"
+            android:summary="@string/about_desc"
             ><intent
             android:action="android.intent.action.VIEW"
             android:data="https://github.com/egdw/mobile_monitor_android_simple" />

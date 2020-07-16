@@ -1,6 +1,7 @@
 package monitor.mobie.hdy.im.service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.ComponentName;
@@ -8,10 +9,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.text.GetChars;
 
 import java.util.Set;
 
@@ -23,8 +27,6 @@ import monitor.mobie.hdy.im.R;
  */
 
 public class MonitorService extends Service {
-    private String SCKEY;
-    private SharedPreferences data;
 
     @Nullable
     @Override
@@ -32,6 +34,7 @@ public class MonitorService extends Service {
         return null;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onCreate() {
         super.onCreate();
@@ -41,6 +44,7 @@ public class MonitorService extends Service {
     /**
      * 初始化操作
      */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void init() {
         if (!isNotificationListenerServiceEnabled(this)) {
             openNotificationAccess();
@@ -62,23 +66,30 @@ public class MonitorService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-//        uploadAll();
         return super.onStartCommand(intent, flags, startId);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public static void startForeground(Service context) {
         //设置常驻通知栏
         //保持为前台应用状态
         NotificationManager nm = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-        builder.setContentTitle("手机监控器监听通知栏中...")
-                .setContentText("")
+        //高版本需要渠道
+        if(Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O){
+            //只在Android O之上需要渠道，这里的第一个参数要和下面的channelId一样
+            NotificationChannel notificationChannel = new NotificationChannel("monitor","name",NotificationManager.IMPORTANCE_HIGH);
+            //如果这里用IMPORTANCE_NOENE就需要在系统的设置里面开启渠道，通知才能正常弹出
+            nm.createNotificationChannel(notificationChannel);
+        }
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,"monitor");
+        builder.setContentTitle(context.getString(R.string.notification_title))
+                .setContentText(context.getString(R.string.notification_text))
                 .setWhen(System.currentTimeMillis())
                 .setPriority(Notification.PRIORITY_MIN)
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setAutoCancel(true);
         Notification notification = builder.build();
-        context.startForeground(8888, notification);
+        context.startForeground(8889, notification);
     }
 
 

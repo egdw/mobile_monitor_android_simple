@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/StudioProjects-mobile_monitor_android_simple.iml" filepath="$PROJECT_DIR$/.idea/modules/StudioProjects-mobile_monitor_android_simple.iml" group="mobile_monitor_android_simple" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/mobile_monitor_android_simple.iml" filepath="$PROJECT_DIR$/mobile_monitor_android_simple.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/mobile_monitor_android_simple-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/mobile_monitor_android_simple-app.iml" group="mobile_monitor_android_simple/app" />
     </modules>
   </component>
 </project>

@@ -23,13 +23,17 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.Toast;
+import com.dou361.update.UpdateHelper;
+import com.dou361.update.listener.UpdateListener;
+import com.dou361.update.type.UpdateType;
+import com.dou361.update.util.InstallUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-
 import monitor.mobie.hdy.im.adapter.AppInfosAdapter;
+import monitor.mobie.hdy.im.config.UpdateConfig;
 import monitor.mobie.hdy.im.database.AppinfosDatabase;
 import monitor.mobie.hdy.im.model.AppInfo;
 import monitor.mobie.hdy.im.service.MonitorService;
@@ -44,6 +48,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //检查更新
+        Log.i("APP checking update","loading");
+        UpdateConfig.init(this);
+        UpdateHelper.getInstance()
+                .setUpdateType(UpdateType.autoupdate)
+                .check(MainActivity.this);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
