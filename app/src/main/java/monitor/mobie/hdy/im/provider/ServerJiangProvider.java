@@ -11,6 +11,7 @@ import com.squareup.okhttp.Response;
 import java.io.IOException;
 import java.net.URLEncoder;
 import monitor.mobie.hdy.im.R;
+import monitor.mobie.hdy.im.config.Constant;
 
 /**
  * Created by hdy on 2020/07/10.
@@ -53,10 +54,10 @@ public class ServerJiangProvider extends PushProvider {
 
     @Override
     public void send(String title, String text,String packageName) {
-        SharedPreferences data = getContext().getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
-        boolean openSckey = data.getBoolean("SCKEY_enable", true);
+        SharedPreferences data = getContext().getSharedPreferences(Constant.DATA, Context.MODE_MULTI_PROCESS);
+        boolean openSckey = data.getBoolean(Constant.SCKEY_ENABLE, true);
         if (openSckey){
-            String SCKEY = data.getString("SCKEY", null);
+            String SCKEY = data.getString(Constant.SCKEY, null);
             String[] spilt = spilt(SCKEY);
             StringBuilder sb = new StringBuilder();
             sb.append("# ").append(title).append("\r\n")
@@ -71,8 +72,8 @@ public class ServerJiangProvider extends PushProvider {
 
     @Override
     public void sendTest() {
-        SharedPreferences data = getContext().getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
-        String SCKEY = data.getString("SCKEY", "");
+        SharedPreferences data = getContext().getSharedPreferences(Constant.DATA, Context.MODE_MULTI_PROCESS);
+        String SCKEY = data.getString(Constant.SCKEY, "");
         sendTest(SCKEY);
     }
 

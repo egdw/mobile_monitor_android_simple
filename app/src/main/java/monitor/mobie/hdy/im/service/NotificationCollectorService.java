@@ -1,4 +1,5 @@
 package monitor.mobie.hdy.im.service;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
@@ -7,9 +8,13 @@ import android.os.PowerManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
+
 import java.util.HashMap;
 import java.util.regex.Pattern;
+
 import monitor.mobie.hdy.im.database.AppinfosDatabase;
+import monitor.mobie.hdy.im.provider.CustomProvider;
 import monitor.mobie.hdy.im.provider.PushProvider;
 import monitor.mobie.hdy.im.provider.ServerJiangProvider;
 import monitor.mobie.hdy.im.provider.WxPushProvider;
@@ -39,6 +44,7 @@ public class NotificationCollectorService extends NotificationListenerService {
         String title = sbn.getNotification().extras.get("android.title").toString();
         //获取推送应用的包名
         String packageName = sbn.getPackageName();
+        Log.i("接收到数据", text);
         if (!block.isEmpty()) {
             //判断是否包含关键词
             boolean exist = false;
@@ -74,14 +80,13 @@ public class NotificationCollectorService extends NotificationListenerService {
         if (appNeedPush) {
             try {
                 //进行Server酱推送
-                PushProvider provider = new ServerJiangProvider();
-                provider.setContext(NotificationCollectorService.this);
-                provider.send(title, text, packageName);
+                new ServerJiangProvider().setContext(NotificationCollectorService.this).send(title, text, packageName);
 
                 //进行企业微信推送
-                PushProvider wxPushProvider = new WxPushProvider();
-                wxPushProvider.setContext(NotificationCollectorService.this);
-                provider.send(title, text, packageName);
+                new WxPushProvider().setContext(NotificationCollectorService.this).send(title, text, packageName);
+
+                //进行自定义推送
+                new CustomProvider().setContext(NotificationCollectorService.this).send(title, text, packageName);
             } catch (Exception e) {
                 e.printStackTrace();
             }

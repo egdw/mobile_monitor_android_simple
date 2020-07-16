@@ -48,6 +48,34 @@
             android:title="@string/try_test_title"
             android:summary="@string/try_test"/>
     </PreferenceCategory>
+    <PreferenceCategory android:title="自定义推送">
+        <SwitchPreference
+            android:checked="false"
+            android:key="coustom_enable"
+            android:summary="自定义推送开关"
+            android:summaryOff="已关闭自定义推送"
+            android:summaryOn="已开启自定义推送"
+            android:title="启用" />
+        <EditTextPreference
+            android:dependency="coustom_enable"
+            android:key="coustom_url"
+            android:summary="当前为空（支持多行输入多个链接）"
+            android:title="请求地址" />
+        <EditTextPreference
+            android:dependency="coustom_enable"
+            android:key="coustom_method"
+            android:summary="当前为空（支持多行输入多个请求方式）"
+            android:title="请求方式" />
+        <EditTextPreference
+            android:dependency="coustom_enable"
+            android:key="coustom_remark"
+            android:summary="当前为空"
+            android:title="备注信息" />
+        <Preference
+            android:key="coustom_test"
+            android:title="@string/try_test_title"
+            android:summary="@string/try_test"/>
+    </PreferenceCategory>
     <PreferenceCategory android:title="关于">
         <Preference
             android:title="作者"

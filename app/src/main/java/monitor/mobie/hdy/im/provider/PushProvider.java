@@ -24,8 +24,9 @@ public abstract class PushProvider {
 
     }
 
-    public void setContext(Context context){
+    public PushProvider setContext(Context context){
         this.context = context;
+        return this;
     }
 
     Context getContext(){

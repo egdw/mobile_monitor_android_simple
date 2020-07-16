@@ -8,7 +8,8 @@
 
     <string name="try_test_title">测试推送</string>
     <string name="try_test">请点击这里进行测试推送是否能够发送成功！</string>
-
+    <string name="notification_title">通知转发器监听通知栏中...</string>
+    <string name="notification_text">开启此工具将会转发手机上的所有通知。</string>
     <string name="action_settings">Settings</string>
     <string name="empty">当前为空</string>
 

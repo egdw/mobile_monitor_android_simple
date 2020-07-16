@@ -10,6 +10,8 @@ import android.preference.PreferenceFragment;
 import android.support.annotation.RequiresApi;
 
 import monitor.mobie.hdy.im.R;
+import monitor.mobie.hdy.im.config.Constant;
+import monitor.mobie.hdy.im.provider.CustomProvider;
 import monitor.mobie.hdy.im.provider.PushProvider;
 import monitor.mobie.hdy.im.provider.ServerJiangProvider;
 import monitor.mobie.hdy.im.utils.ToastUtils;
@@ -25,7 +27,7 @@ public class PushSettingFrament extends PreferenceFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getPreferenceManager().setSharedPreferencesName("data");
+        getPreferenceManager().setSharedPreferencesName(Constant.DATA);
         getPreferenceManager().setSharedPreferencesMode(Context.MODE_MULTI_PROCESS);
         addPreferencesFromResource(R.xml.preference_push);
         init();
@@ -34,21 +36,66 @@ public class PushSettingFrament extends PreferenceFragment {
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void init() {
         final SharedPreferences shp = getPreferenceManager().getSharedPreferences();
-        final EditTextPreference SCKEY = (EditTextPreference) findPreference("SCKEY");
-        final EditTextPreference wx_corpid = (EditTextPreference) findPreference("wx_corpid");
-        final EditTextPreference wx_corpsecret = (EditTextPreference) findPreference("wx_corpsecret");
-        final EditTextPreference wx_agentid = (EditTextPreference) findPreference("wx_agentid");
-        Preference sckey_enable = findPreference("SCKEY_enable");
-        Preference wx_enable = findPreference("wx_enable");
-        SCKEY.setSummary(getValue(shp.getString("SCKEY", "当前为空")));
-        wx_corpid.setSummary(getValue(shp.getString("wx_corpid", "当前为空")));
-        wx_corpsecret.setSummary(getValue(shp.getString("wx_corpsecret", "当前为空")));
-        wx_agentid.setSummary(getValue(shp.getString("wx_agentid", "当前为空")));
+        final EditTextPreference SCKEY = (EditTextPreference) findPreference(Constant.SCKEY);
+        final EditTextPreference wx_corpid = (EditTextPreference) findPreference(Constant.WX_CORPID);
+        final EditTextPreference wx_corpsecret = (EditTextPreference) findPreference(Constant.WX_CORPSECRET);
+        final EditTextPreference wx_agentid = (EditTextPreference) findPreference(Constant.WX_AGENTID);
+        //获取自定义的请求方法
+        final EditTextPreference coustom_method = (EditTextPreference) findPreference(Constant.COUSTOM_METHOD);
+        //获取自定义的请求地址
+        final EditTextPreference coustom_url = (EditTextPreference) findPreference(Constant.COUSTOM_URL);
+        //获取备注信息
+        final EditTextPreference coustom_remark = (EditTextPreference) findPreference(Constant.COUSTOM_REMARK);
+        Preference coustom_enable = findPreference(Constant.COUSTOM_ENABLE);
+        Preference sckey_enable = findPreference(Constant.SCKEY_ENABLE);
+        Preference wx_enable = findPreference(Constant.WX_ENABLE);
+        SCKEY.setSummary(getValue(shp.getString(Constant.SCKEY, getString(R.string.empty))));
+        wx_corpid.setSummary(getValue(shp.getString(Constant.WX_CORPID, getString(R.string.empty))));
+        wx_corpsecret.setSummary(getValue(shp.getString(Constant.WX_CORPSECRET, getString(R.string.empty))));
+        wx_agentid.setSummary(getValue(shp.getString(Constant.WX_AGENTID, getString(R.string.empty))));
+        coustom_method.setSummary(getValue(shp.getString(Constant.COUSTOM_METHOD, getString(R.string.empty))));
+        coustom_url.setSummary(getValue(shp.getString(Constant.COUSTOM_URL, getString(R.string.empty))));
+        coustom_remark.setSummary(getValue(shp.getString(Constant.COUSTOM_REMARK,getString(R.string.empty))));
+
+        findPreference(Constant.COUSTOM_REMARK).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (newValue.toString().isEmpty()) {
+                    coustom_remark.setDefaultValue(getString(R.string.empty));
+                } else {
+                    coustom_remark.setSummary(newValue.toString());
+                }
+                return true;
+            }
+        });
+        findPreference(Constant.COUSTOM_METHOD).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (newValue.toString().isEmpty()) {
+                    coustom_method.setDefaultValue(getString(R.string.empty));
+                } else {
+                    coustom_method.setSummary(newValue.toString());
+                }
+                return true;
+            }
+        });
+
+        findPreference(Constant.COUSTOM_URL).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (newValue.toString().isEmpty()) {
+                    coustom_url.setDefaultValue(getString(R.string.empty));
+                } else {
+                    coustom_url.setSummary(newValue.toString());
+                }
+                return true;
+            }
+        });
 
         findPreference("sckey_test").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                String sckey = shp.getString("SCKEY", "");
+                String sckey = shp.getString(Constant.SCKEY, "");
                 if (!sckey.isEmpty()) {
                     ServerJiangProvider provider = new ServerJiangProvider();
                     provider.setContext(PushSettingFrament.this.getContext());
@@ -61,12 +108,33 @@ public class PushSettingFrament extends PreferenceFragment {
             }
         });
 
+        findPreference("coustom_test").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                String coustom_url = shp.getString(Constant.COUSTOM_URL, null);
+                String coustom_method = shp.getString(Constant.COUSTOM_METHOD, null);
+                String[] coustom_url_spilt = spilt(coustom_url);
+                String[] coustom_method_spilt = spilt(coustom_method);
+                if (coustom_url_spilt!=null && coustom_method_spilt!=null && coustom_url_spilt.length == coustom_method_spilt.length) {
+                    new CustomProvider().setContext(PushSettingFrament.this.getContext()).sendTest();
+                    ToastUtils.toast(PushSettingFrament.this.getContext(),"发送测试完成");
+                }else{
+                    if (coustom_url_spilt == null || coustom_method_spilt == null){
+                        ToastUtils.toast(PushSettingFrament.this.getContext(),"请填写完整数据!");
+                    }else{
+                        ToastUtils.toast(PushSettingFrament.this.getContext(),"链接地址 和 请求方式 数量不一致!请重新检查!!");
+                    }
+                }
+                return true;
+            }
+        });
+
         findPreference("wx_test").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                String wxCorpid = shp.getString("wx_corpid", "");
-                String wxCorpsecret = shp.getString("wx_corpsecret", "");
-                String wxAgentid = shp.getString("wx_agentid", "");
+                String wxCorpid = shp.getString(Constant.WX_CORPID, null);
+                String wxCorpsecret = shp.getString(Constant.WX_CORPSECRET, null);
+                String wxAgentid = shp.getString(Constant.WX_AGENTID, null);
                 String[] wx_corpid_spilt = spilt(wxCorpid);
                 String[] wx_corpsecret_spilt = spilt(wxCorpsecret);
                 String[] wx_agentid_spilt = spilt(wxAgentid);
@@ -102,11 +170,17 @@ public class PushSettingFrament extends PreferenceFragment {
                 return true;
             }
         });
+        coustom_enable.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                return true;
+            }
+        });
         SCKEY.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 if (newValue.toString().isEmpty()) {
-                    SCKEY.setSummary("当前为空");
+                    SCKEY.setSummary(getString(R.string.empty));
                 } else {
                     SCKEY.setSummary(newValue.toString());
                 }
@@ -117,7 +191,7 @@ public class PushSettingFrament extends PreferenceFragment {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 if (newValue.toString().isEmpty()) {
-                    wx_corpid.setDefaultValue("当前为空");
+                    wx_corpid.setDefaultValue(getString(R.string.empty));
                 } else {
                     wx_corpid.setSummary(newValue.toString());
                 }
@@ -128,7 +202,7 @@ public class PushSettingFrament extends PreferenceFragment {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 if (newValue.toString().isEmpty()) {
-                    wx_corpsecret.setSummary("当前为空");
+                    wx_corpsecret.setSummary(getString(R.string.empty));
                 } else {
                     wx_corpsecret.setSummary(newValue.toString());
                 }
@@ -139,7 +213,7 @@ public class PushSettingFrament extends PreferenceFragment {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 if (newValue.toString().isEmpty()) {
-                    wx_agentid.setSummary("当前为空");
+                    wx_agentid.setSummary(getString(R.string.empty));
                 } else {
                     wx_agentid.setSummary(newValue.toString());
                 }
@@ -150,7 +224,7 @@ public class PushSettingFrament extends PreferenceFragment {
 
     private String getValue(String get) {
         if (get.isEmpty()) {
-            return "当前为空";
+            return getString(R.string.empty);
         }
         return get;
     }

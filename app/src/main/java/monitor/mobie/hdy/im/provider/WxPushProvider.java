@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import monitor.mobie.hdy.im.R;
+import monitor.mobie.hdy.im.config.Constant;
 import monitor.mobie.hdy.im.model.Send;
 import monitor.mobie.hdy.im.model.Token;
 
@@ -115,18 +116,18 @@ public class WxPushProvider extends PushProvider {
 
     @Override
     public void send(String title, String text,String packageName) {
-        SharedPreferences data = getContext().getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
+        SharedPreferences data = getContext().getSharedPreferences(Constant.DATA, Context.MODE_MULTI_PROCESS);
         //是否打开企业微信推送
-        boolean wxEnable = data.getBoolean("wx_enable", true);
+        boolean wxEnable = data.getBoolean(Constant.WX_ENABLE, true);
         if(wxEnable){
             //微信企业id
-            String wx_corpid = data.getString("wx_corpid", null);
+            String wx_corpid = data.getString(Constant.WX_CORPID, null);
             String[] wx_corpid_spilt = spilt(wx_corpid);
             //微信应用密钥
-            String wx_corpsecret = data.getString("wx_corpsecret", null);
+            String wx_corpsecret = data.getString(Constant.WX_CORPSECRET, null);
             String[] wx_corpsecret_spilt = spilt(wx_corpsecret);
             //微信应用id
-            String wx_agentid = data.getString("wx_agentid", null);
+            String wx_agentid = data.getString(Constant.WX_AGENTID, null);
             String[] wx_agentid_spilt = spilt(wx_agentid);
 
             //判断是否数据数量是否相同,如果不相同则不能提交
@@ -148,11 +149,11 @@ public class WxPushProvider extends PushProvider {
     @Override
     public void sendTest() {
         SharedPreferences data = getContext().getSharedPreferences("data", Context.MODE_MULTI_PROCESS);
-        String wx_corpid = data.getString("wx_corpid", null);
+        String wx_corpid = data.getString(Constant.WX_CORPID, null);
         //微信应用密钥
-        String wx_corpsecret = data.getString("wx_corpsecret", null);
+        String wx_corpsecret = data.getString(Constant.WX_CORPSECRET, null);
         //微信应用id
-        String wx_agentid = data.getString("wx_agentid", null);
+        String wx_agentid = data.getString(Constant.WX_AGENTID, null);
         sendTest(wx_corpid,wx_corpsecret,wx_agentid);
     }
 }
