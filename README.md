@@ -1,5 +1,7 @@
 # mobile_monitor_android
+
 手机监听器安卓端
+
 > 开发目的:部分Iphone用户经常有两张手机卡.但是苹果只支持单张卡.所以特此开发安卓端进行远程监听.实现只用带一个手机即可实现远程查看来电和短信.
 > 可以在多个设备都安装，可以同时推送
 
@@ -7,13 +9,16 @@
 
 # 后续更新
 1. 添加自动转发关键词通知的功能。
-2. 添加自定义接口的功能
+2. 只接受关键词通知转发
+3. 提供配置的快速导出和导出,不需要每次换设备或重装费力的输入数据
 
 ## 最新更新
-
+1. 2020/7/16
 目前已经支持自定义接口推送,支持两种请求方式GET和POST方式
 支持多接口推送,包括微信推送,Server酱推送,自定义接口推送
+支持检测更新
 
+2. 2019
 优化了企业微信推送，现在已经可以支持企业微信通知转发的微信上。（我知道很多人可能担心server酱的安全问题）
 推荐大家使用企业微信转微信的方式。具体的方法基本和下面的企业微信设置方法差不多，唯一的区别就是需要扫描一个企业微信的二维码就可以把企业微信的推送
 转发到微信上了。
@@ -25,6 +30,8 @@
 
 ## 使用方法
 
+* [多接口同时推送设置方法](https://github.com/egdw/mobile_monitor_android_simple/wiki/%E5%A4%9A%E6%8E%A5%E5%8F%A3%E8%AF%B7%E6%B1%82%E7%94%A8%E6%B3%95)
+* [自定义推送设置方法](https://github.com/egdw/mobile_monitor_android_simple/wiki/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8E%A8%E9%80%81)
 * [Server酱设置方法](https://github.com/egdw/mobile_monitor_android_simple/wiki/Server%E9%85%B1%E6%8E%A8%E9%80%81%E8%AE%BE%E7%BD%AE%E6%96%B9%E6%B3%95)
 * [企业微信设置方法](https://github.com/egdw/mobile_monitor_android_simple/wiki/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E8%AE%BE%E7%BD%AE%E6%96%B9%E6%B3%95)
 
@@ -34,6 +41,8 @@
 * 部分应用通知推送
 * 关键词屏蔽
 * 亮屏推送
+* 自定义地址推送
+* 多地址多链接同时推送
 
 
 ## 安卓端界面
