@@ -7,6 +7,10 @@
 
 目前已经首发在吾爱破解[地址在这里](https://www.52pojie.cn/thread-830341-1-1.html)
 
+# 最新下载地址
+
+[点击这里查看最新版本](https://github.com/egdw/mobile_monitor_android_simple/releases/)
+
 # 后续更新
 1. 添加自动转发关键词通知的功能。
 2. 只接受关键词通知转发
