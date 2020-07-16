@@ -16,8 +16,7 @@ import monitor.mobie.hdy.im.model.UpdateBean;
  */
 public class UpdateConfig {
 
-    private static String checkUrl = "https://raw.githubusercontent.com/egdw/mobile_monitor_android_simple/master/version.json";
-    private static String onlineUrl = "";
+    private static String checkUrl = "https://egdw.github.io/mobile_monitor_android_simple/version/version.json";
 
     public static void init(Context context) {
         UpdateHelper.init(context);
