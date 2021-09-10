@@ -16,10 +16,7 @@ public class BarkProvider extends PushProvider {
         SharedPreferences data = getContext().getSharedPreferences(Constant.DATA, 4);
         if (data.getBoolean(Constant.BARK_ENABLE, true)) {
             String url = data.getString(Constant.BARK_URL, (String) null);
-            if (url.lastIndexOf(0) != 47) {
-                url = url + "/";
-            }
-            new OkHttpClient().newCall(new Request.Builder().url(url + title + "," + packageName + "," + text).build()).enqueue(new Callback() {
+            new OkHttpClient().newCall(new Request.Builder().url(url + URLEncoder.encode(title + "," + packageName + "," + text)).build()).enqueue(new Callback() {
                 public void onFailure(Request request, IOException e) {
                     BarkProvider.this.saveErrorProvider(0);
                 }
