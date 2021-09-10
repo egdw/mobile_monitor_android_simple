@@ -1,5 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <PreferenceCategory android:title="Bark推送设置">
+        <SwitchPreference
+            android:checked="true"
+            android:defaultValue="false"
+            android:key="bark_enable"
+            android:summary="Bark开关"
+            android:summaryOff="已关闭Bark推送"
+            android:summaryOn="已开启Bark推送"
+            android:title="启用" />
+        <EditTextPreference
+            android:dependency="bark_enable"
+            android:key="bark_url"
+            android:summary="当前为空（支持多行输入多个Bark链接）"
+            android:title="SCKEY" />
+        <PreferenceScreen
+            android:dependency="bark_enable"
+            android:key="bark_test"
+            android:title="@string/try_test_title"
+            android:summary="@string/try_test"/>
+
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="Server酱推送设置">
         <SwitchPreference
             android:checked="true"
@@ -15,6 +39,7 @@
             android:summary="当前为空（支持多行输入多个SCKEY）"
             android:title="SCKEY" />
         <PreferenceScreen
+            android:dependency="SCKEY_enable"
             android:key="sckey_test"
             android:title="@string/try_test_title"
             android:summary="@string/try_test"/>
@@ -44,6 +69,7 @@
             android:summary="当前为空（支持多行输入多个应用编号）"
             android:title="应用编号(agentid)" />
         <Preference
+            android:dependency="wx_enable"
             android:key="wx_test"
             android:title="@string/try_test_title"
             android:summary="@string/try_test"/>
@@ -72,6 +98,7 @@
             android:summary="当前为空"
             android:title="备注信息" />
         <Preference
+            android:dependency="coustom_enable"
             android:key="coustom_test"
             android:title="@string/try_test_title"
             android:summary="@string/try_test"/>

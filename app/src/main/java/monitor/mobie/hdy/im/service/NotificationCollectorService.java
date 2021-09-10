@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.regex.Pattern;
 
 import monitor.mobie.hdy.im.database.AppinfosDatabase;
+import monitor.mobie.hdy.im.provider.BarkProvider;
 import monitor.mobie.hdy.im.provider.CustomProvider;
 import monitor.mobie.hdy.im.provider.PushProvider;
 import monitor.mobie.hdy.im.provider.ServerJiangProvider;
@@ -87,6 +88,9 @@ public class NotificationCollectorService extends NotificationListenerService {
 
                 //进行自定义推送
                 new CustomProvider().setContext(NotificationCollectorService.this).send(title, text, packageName);
+
+                //Bark 推送
+                new BarkProvider().setContext(NotificationCollectorService.this).send(title, text, packageName);
             } catch (Exception e) {
                 e.printStackTrace();
             }

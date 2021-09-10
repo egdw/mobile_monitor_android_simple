@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">恶搞大王通知转发器</string>
     <string name="author">恶搞大王</string>
-    <string name="version">4.0</string>
+    <string name="version">4.1</string>
 
     <string name="about">本程序完全免费开源</string>
     <string name="about_desc">开源地址请点击这里</string>

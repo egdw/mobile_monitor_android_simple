@@ -11,6 +11,7 @@ import android.support.annotation.RequiresApi;
 
 import monitor.mobie.hdy.im.R;
 import monitor.mobie.hdy.im.config.Constant;
+import monitor.mobie.hdy.im.provider.BarkProvider;
 import monitor.mobie.hdy.im.provider.CustomProvider;
 import monitor.mobie.hdy.im.provider.PushProvider;
 import monitor.mobie.hdy.im.provider.ServerJiangProvider;
@@ -46,9 +47,14 @@ public class PushSettingFrament extends PreferenceFragment {
         final EditTextPreference coustom_url = (EditTextPreference) findPreference(Constant.COUSTOM_URL);
         //获取备注信息
         final EditTextPreference coustom_remark = (EditTextPreference) findPreference(Constant.COUSTOM_REMARK);
+        Preference findPreference = findPreference(Constant.BARK_URL);
+
         Preference coustom_enable = findPreference(Constant.COUSTOM_ENABLE);
         Preference sckey_enable = findPreference(Constant.SCKEY_ENABLE);
         Preference wx_enable = findPreference(Constant.WX_ENABLE);
+        Preference bark_enable = findPreference(Constant.BARK_ENABLE);
+        final EditTextPreference bark_urls = (EditTextPreference) findPreference;
+
         SCKEY.setSummary(getValue(shp.getString(Constant.SCKEY, getString(R.string.empty))));
         wx_corpid.setSummary(getValue(shp.getString(Constant.WX_CORPID, getString(R.string.empty))));
         wx_corpsecret.setSummary(getValue(shp.getString(Constant.WX_CORPSECRET, getString(R.string.empty))));
@@ -56,6 +62,19 @@ public class PushSettingFrament extends PreferenceFragment {
         coustom_method.setSummary(getValue(shp.getString(Constant.COUSTOM_METHOD, getString(R.string.empty))));
         coustom_url.setSummary(getValue(shp.getString(Constant.COUSTOM_URL, getString(R.string.empty))));
         coustom_remark.setSummary(getValue(shp.getString(Constant.COUSTOM_REMARK,getString(R.string.empty))));
+        bark_urls.setSummary(getValue(shp.getString(Constant.BARK_URL, getString(R.string.empty))));
+
+        findPreference(Constant.BARK_URL).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (newValue.toString().isEmpty()) {
+                    bark_urls.setDefaultValue(PushSettingFrament.this.getString(R.string.empty));
+                    return true;
+                }
+                bark_urls.setSummary(newValue.toString());
+                return true;
+            }
+        });
+
 
         findPreference(Constant.COUSTOM_REMARK).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
@@ -92,6 +111,19 @@ public class PushSettingFrament extends PreferenceFragment {
             }
         });
 
+        findPreference("bark_test").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+                if (!shp.getString(Constant.SCKEY, "").isEmpty()) {
+                    BarkProvider provider = new BarkProvider();
+                    provider.setContext(PushSettingFrament.this.getContext());
+                    provider.sendTest();
+                    ToastUtils.toast(PushSettingFrament.this.getContext(), "发送测试完成");
+                    return true;
+                }
+                ToastUtils.toast(PushSettingFrament.this.getContext(), "请输入Bark的地址");
+                return true;
+            }
+        });
         findPreference("sckey_test").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
