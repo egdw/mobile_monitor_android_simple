@@ -21,4 +21,13 @@ public interface Constant {
      public static final String WX_CORPID = "wx_corpid";
      public static final String WX_CORPSECRET = "wx_corpsecret";
      public static final String WX_ENABLE = "wx_enable";
+
+
+
+     public static final String EMAIL_ENABLE = "email_enable";
+     public static final String EMAIL_ACCOUNT = "email_account";
+     public static final String EMAIL_PASSWORD = "email_password";
+     public static final String EMAIL_TYPE = "email_type";
+     public static final String EMAIL_RECEIVER = "email_receiver";
+
 }

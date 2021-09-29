@@ -15,7 +15,7 @@
             android:dependency="bark_enable"
             android:key="bark_url"
             android:summary="当前为空（支持多行输入多个Bark链接）"
-            android:title="SCKEY" />
+            android:title="BARK推送地址" />
         <PreferenceScreen
             android:dependency="bark_enable"
             android:key="bark_test"
@@ -74,6 +74,50 @@
             android:title="@string/try_test_title"
             android:summary="@string/try_test"/>
     </PreferenceCategory>
+
+    <PreferenceCategory android:title="邮箱推送设置">
+        <SwitchPreference
+            android:checked="true"
+            android:defaultValue="false"
+            android:key="email_enable"
+            android:summary="邮箱推送开关"
+            android:summaryOff="已关闭邮箱推送"
+            android:summaryOn="已开启邮箱推送"
+            android:title="启用" />
+
+        <ListPreference android:title="邮箱提供商"
+            android:dependency="email_enable"
+            android:entries="@array/emails"
+            android:key="email_type"
+            android:dialogTitle="邮箱提供商"
+            android:entryValues="@array/emails_id"
+            android:summary="请选择邮箱提供商">
+        </ListPreference>
+        <EditTextPreference
+            android:dependency="email_enable"
+            android:key="email_account"
+            android:summary="当前为空"
+            android:title="发送邮箱地址" />
+
+        <EditTextPreference
+            android:dependency="email_enable"
+            android:key="email_password"
+            android:summary="当前为空"
+            android:title="发送邮箱 授权码" />
+
+        <EditTextPreference
+            android:dependency="email_enable"
+            android:key="email_receiver"
+            android:summary="当前为空（支持多行输入多个邮箱）"
+            android:title="接收邮箱" />
+        <PreferenceScreen
+            android:dependency="email_enable"
+            android:key="email_test"
+            android:title="@string/try_test_title"
+            android:summary="@string/try_test"/>
+
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="自定义推送">
         <SwitchPreference
             android:checked="false"

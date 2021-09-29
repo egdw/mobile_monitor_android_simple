@@ -19,4 +19,5 @@ public class BootBroadcastReciver extends BroadcastReceiver {
         Intent serviceIntent = new Intent(context, MonitorService.class);
         context.startService(serviceIntent);
     }
+
 }

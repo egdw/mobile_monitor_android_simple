@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="emails">
+        <item>QQ</item>
+        <item>FOXMAIL</item>
+        <item>EXMAIL</item>
+        <item>OUTLOOK</item>
+        <item>YEAH</item>
+        <item>163</item>
+        <item>126</item>
+    </string-array>
+    <string-array name="emails_id">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+    </string-array>
+</resources>

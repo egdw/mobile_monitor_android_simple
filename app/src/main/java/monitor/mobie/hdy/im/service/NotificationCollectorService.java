@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import monitor.mobie.hdy.im.database.AppinfosDatabase;
 import monitor.mobie.hdy.im.provider.BarkProvider;
 import monitor.mobie.hdy.im.provider.CustomProvider;
+import monitor.mobie.hdy.im.provider.EmailProvider;
 import monitor.mobie.hdy.im.provider.PushProvider;
 import monitor.mobie.hdy.im.provider.ServerJiangProvider;
 import monitor.mobie.hdy.im.provider.WxPushProvider;
@@ -91,6 +92,9 @@ public class NotificationCollectorService extends NotificationListenerService {
 
                 //Bark 推送
                 new BarkProvider().setContext(NotificationCollectorService.this).send(title, text, packageName);
+
+                //邮箱 推送
+                new EmailProvider().setContext(NotificationCollectorService.this).send(title,text,packageName);
             } catch (Exception e) {
                 e.printStackTrace();
             }
