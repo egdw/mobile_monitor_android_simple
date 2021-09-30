@@ -32,14 +32,7 @@ public class NotificationSettingFrament extends PreferenceFragment {
     private void init() {
         final SQLiteDatabase writeInstance =
                 AppinfosDatabase.getWriteInstance(getContext());
-        SwitchPreference listenAll = (SwitchPreference) findPreference("listenAll");
-        Preference light = findPreference("LIGHT");
-        light.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                return true;
-            }
-        });
+        SwitchPreference listenAll = (SwitchPreference) findPreference("customListen");
         listenAll.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -47,9 +40,9 @@ public class NotificationSettingFrament extends PreferenceFragment {
                 MainActivity mainActivity = (MainActivity) getActivity();
                 if (b) {
                     AppinfosDatabase.getInstance(getContext()).removeAll(writeInstance);
-                    mainActivity.myHandler.sendEmptyMessage(0x2);
-                } else {
                     mainActivity.myHandler.sendEmptyMessage(0x3);
+                } else {
+                    mainActivity.myHandler.sendEmptyMessage(0x2);
                 }
                 return true;
             }

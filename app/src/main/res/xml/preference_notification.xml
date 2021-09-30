@@ -2,23 +2,13 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <SwitchPreference
-        android:defaultValue="true"
-        android:key="listenAll"
-        android:summary="开启则监听所有通知,关闭则选择应用监听"
-        android:title="监听所有通知" />
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="LIGHT"
-        android:summary="开启则屏幕点亮也会通知"
-        android:title="亮屏通知" />
-    <EditTextPreference
-        android:key="block"
-        android:singleLine="false"
-        android:title="指定关键词屏蔽(一行一个)"
-        android:summary="可以屏蔽包含指定关键词的通知(支持正则表达式)"/>
+        android:defaultValue="false"
+        android:key="customListen"
+        android:summary="自定义选择要监听的应用"
+        android:title="监听自定义应用" />
     <Preference
         android:key="list"
-        android:dependency="listenAll"
+        android:dependency="customListen"
         android:layout="@layout/application_list_layout" />
 
 

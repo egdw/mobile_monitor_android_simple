@@ -11,8 +11,6 @@ import monitor.mobie.hdy.im.service.MonitorService;
  */
 
 public class BootBroadcastReciver extends BroadcastReceiver {
-    private MonitorService monitorService;
-    private boolean flag;
 
     @Override
     public void onReceive(Context context, Intent intent) {

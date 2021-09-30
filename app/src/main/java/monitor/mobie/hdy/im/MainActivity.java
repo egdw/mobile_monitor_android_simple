@@ -10,10 +10,13 @@ import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -44,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //检查更新
-        Log.i("APP checking update","loading");
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         tabHost.addTab(tabHost.newTabSpec("tab1").setIndicator("介绍", null).setContent(R.id.tab1));
         tabHost.addTab(tabHost.newTabSpec("tab2").setIndicator("推送设置", null).setContent(R.id.tab2));
         tabHost.addTab(tabHost.newTabSpec("tab3").setIndicator("通知设置", null).setContent(R.id.tab3));
+        tabHost.addTab(tabHost.newTabSpec("tab4").setIndicator("更多设置", null).setContent(R.id.tab4));
         if (!isNotificationListenerServiceEnabled(this)) {
             Toast.makeText(this, "请先勾选手机监听器的读取通知栏权限!", Toast.LENGTH_LONG).show();
             return;
@@ -145,6 +148,11 @@ public class MainActivity extends AppCompatActivity {
             //说明需要重新获取数据
             myHandler.sendEmptyMessage(0x3);
         }
+        if(Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            if (!isIgnoringBatteryOptimizations()) {
+                Toast.makeText(this, "请将省电优化设置为无限制，关闭对通知器的省电优化有助于防止程序被杀！!", Toast.LENGTH_LONG).show();
+            }
+        }
         startService(serviceIntent);
     }
 
@@ -173,6 +181,24 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 判断系统是否已经关闭省电优化
+     * @return
+     */
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private boolean isIgnoringBatteryOptimizations() {
+        boolean isIgnoring = false;
+        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if (powerManager != null) {
+            isIgnoring = powerManager.isIgnoringBatteryOptimizations(getPackageName());
+        }
+        if (!isIgnoring){
+            Intent i = new Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+            startActivity(i);
+        }
+        return isIgnoring;
     }
 
     private static final String ACTION_NOTIFICATION_LISTENER_SETTINGS = "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS";
@@ -228,4 +254,24 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
     }
+
+    /**
+     * 跳转到指定应用的首页
+     */
+    private void showActivity(@NonNull String packageName) {
+        Intent intent = getPackageManager().getLaunchIntentForPackage(packageName);
+        startActivity(intent);
+    }
+
+    /**
+     * 跳转到指定应用的指定页面
+     */
+    private void showActivity(@NonNull String packageName, @NonNull String activityDir) {
+        Intent intent = new Intent();
+        intent.setComponent(new ComponentName(packageName, activityDir));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
+
 }

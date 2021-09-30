@@ -13,6 +13,7 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
+import monitor.mobie.hdy.im.config.Constant;
 import monitor.mobie.hdy.im.database.AppinfosDatabase;
 import monitor.mobie.hdy.im.provider.BarkProvider;
 import monitor.mobie.hdy.im.provider.CustomProvider;
@@ -38,6 +39,8 @@ public class NotificationCollectorService extends NotificationListenerService {
         boolean light = data.getBoolean("LIGHT", false);
         //是否监听所有的应用
         boolean listenAll = data.getBoolean("listenAll", true);
+        //是否开启了自定义应用监听
+        boolean customApp = data.getBoolean("customListen",false);
         //获取屏蔽关键词
         String block = data.getString("block", "");
         //获取内容
@@ -46,6 +49,21 @@ public class NotificationCollectorService extends NotificationListenerService {
         String title = sbn.getNotification().extras.get("android.title").toString();
         //获取推送应用的包名
         String packageName = sbn.getPackageName();
+
+
+
+        // 预设通知转发
+        boolean PhoneAndMessage = data.getBoolean("PhoneAndMessage",false);
+        boolean ChinaTalkAPP = data.getBoolean("ChinaTalkAPP",false);
+        boolean ChinaShopAPP = data.getBoolean("ChinaShopAPP",false);
+        boolean NewsAPP = data.getBoolean("NewsAPP",false);
+        boolean OtherTalkAPP = data.getBoolean("OtherTalkAPP",false);
+        boolean ShortVideos = data.getBoolean("ShortVideos",false);
+        boolean TakeOut = data.getBoolean("TakeOut",false);
+        boolean Music = data.getBoolean("Music",false);
+
+
+
         Log.i("接收到数据", text);
         if (!block.isEmpty()) {
             //判断是否包含关键词
@@ -78,7 +96,8 @@ public class NotificationCollectorService extends NotificationListenerService {
             }
         }
         //判断当前的app是否需要能被push
-        boolean appNeedPush = isAppNeedPush(packageName, listenAll);
+        boolean appNeedPush = isAppNeedPush(packageName, listenAll,customApp
+                ,PhoneAndMessage,ChinaTalkAPP,ChinaShopAPP,NewsAPP,OtherTalkAPP,ShortVideos,TakeOut,Music);
         if (appNeedPush) {
             try {
                 //进行Server酱推送
@@ -109,22 +128,85 @@ public class NotificationCollectorService extends NotificationListenerService {
 
     /**
      * 判断app是否需要推送
-     *
      * @param packageName 包名
      * @param listenAll   是否监听所有
+     * @param customApp 是否自定义监听
+     * @param phoneAndMessage
+     * @param chinaTalkAPP
+     * @param chinaShopAPP
+     * @param newsAPP
+     * @param otherTalkAPP
+     * @param shortVideos
+     * @param takeOut
+     * @param music
      */
-    private boolean isAppNeedPush(String packageName, boolean listenAll) {
+    private boolean isAppNeedPush(String packageName, boolean listenAll, boolean customApp, boolean phoneAndMessage, boolean chinaTalkAPP, boolean chinaShopAPP, boolean newsAPP, boolean otherTalkAPP, boolean shortVideos, boolean takeOut, boolean music) {
         //这里要进行判断,不需要的packageName就不用通知了.
         if (!listenAll) {
             //如果不是全部监听的话
             //这里判断当前的包名是否和用户勾选的应用包名相同.如果相同的话就进行通知
             //如果不相同就跳过.避免不必要的通知.
-            SQLiteDatabase database = AppinfosDatabase.getReadInstance(this);
-            HashMap<String, Object> infos = AppinfosDatabase.getInstance(this).selectAll(database);
-            if (!infos.containsKey(packageName)) {
-                return false;
+            if (customApp) {
+                SQLiteDatabase database = AppinfosDatabase.getReadInstance(this);
+                HashMap<String, Object> infos = AppinfosDatabase.getInstance(this).selectAll(database);
+                if (infos.containsKey(packageName)) {
+                    return true;
+                }
             }
+
+            //系统预设app
+            if (phoneAndMessage){
+                if(appInArray(Constant.PhoneAndMessage,packageName)){
+                    return true;
+                };
+            }
+
+            if (chinaShopAPP){
+                if(appInArray(Constant.ChinaShopAPP,packageName)){
+                    return true;
+                };            }
+
+            if(chinaTalkAPP){
+                if(appInArray(Constant.ChinaTalkAPP,packageName)){
+                    return true;
+                };            }
+
+            if(newsAPP){
+                if(appInArray(Constant.NewsAPP,packageName)){
+                    return true;
+                };            }
+
+            if(otherTalkAPP){
+                if(appInArray(Constant.OtherTalkAPP,packageName)){
+                    return true;
+                };            }
+
+            if(shortVideos){
+                if(appInArray(Constant.ShortVideos,packageName)){
+                    return true;
+                };            }
+
+            if(takeOut){
+                if(appInArray(Constant.TakeOut,packageName)){
+                    return true;
+                };            }
+
+            if(music){
+                if(appInArray(Constant.Music,packageName)){
+                    return true;
+                };
+            }
+            return false;
         }
         return true;
+    }
+
+    private boolean appInArray(String[] arr,String packageName){
+        for(int i = 0;i<arr.length;i++){
+            if (arr[i].equals(packageName)){
+                return true;
+            }
+        }
+        return false;
     }
 }
