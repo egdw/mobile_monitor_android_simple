@@ -39,6 +39,7 @@
 3. 找到【邀请关注】旁边的二维码，用你的微信扫描一下即可。以后所有的企业微信通知都会转发到你的微信上，不需要再下载企业微信了。
 
 ## 使用方法
+* [邮箱推送设置方法](https://github.com/egdw/mobile_monitor_android_simple/wiki/%E9%82%AE%E7%AE%B1%E6%8E%A8%E9%80%81%E8%AE%BE%E7%BD%AE)
 * [Bark设置方法](https://github.com/egdw/mobile_monitor_android_simple/wiki/Bark-%E8%AE%BE%E7%BD%AE)
 * [多接口同时推送设置方法](https://github.com/egdw/mobile_monitor_android_simple/wiki/%E5%A4%9A%E6%8E%A5%E5%8F%A3%E8%AF%B7%E6%B1%82%E7%94%A8%E6%B3%95)
 * [自定义推送设置方法](https://github.com/egdw/mobile_monitor_android_simple/wiki/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8E%A8%E9%80%81)
@@ -58,8 +59,8 @@
 
 # 赞助
 如果本开源软件对您的生活和工作有很大的帮助，您也可以自由选择是否请作者一杯咖啡，哈哈哈哈哈哈哈哈哈(臭不要脸)。
-![微信]()
-![支付宝]()
+![微信](https://raw.githubusercontent.com/egdw/temp_pic_upload/master/mm_facetoface_collect_qrcode_1633439303205.png)
+![支付宝](https://raw.githubusercontent.com/egdw/temp_pic_upload/master/IMG_20211007_094330.jpg)
 
 ## 安卓端界面
 
