@@ -49,6 +49,8 @@ public class NotificationCollectorService extends NotificationListenerService {
         String title = sbn.getNotification().extras.get("android.title").toString();
         //获取推送应用的包名
         String packageName = sbn.getPackageName();
+        //获取前一次推送的内容
+        String pre_text = data.getString("pre_text", null);
 
 
 
@@ -98,6 +100,12 @@ public class NotificationCollectorService extends NotificationListenerService {
         //判断当前的app是否需要能被push
         boolean appNeedPush = isAppNeedPush(packageName, listenAll,customApp
                 ,PhoneAndMessage,ChinaTalkAPP,ChinaShopAPP,NewsAPP,OtherTalkAPP,ShortVideos,TakeOut,Music);
+        if(pre_text != null){
+            if(text!=null && pre_text.equals(text)){
+                //判断是否是重复消息
+                return;
+            }
+        }
         if (appNeedPush) {
             try {
                 //进行Server酱推送
@@ -117,7 +125,11 @@ public class NotificationCollectorService extends NotificationListenerService {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            SharedPreferences.Editor edit = data.edit();
+            edit.putString("pre_text",text);
+            edit.commit();
         }
+
 
     }
 

@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="配置信息"/>
-    <Preference android:title="导出配置信息"/>
-    <Preference android:title="从其他设备导入配置信息"/>
-    <PreferenceCategory android:title="通知转发"/>
 
     <SwitchPreference
         android:defaultValue="true"
@@ -17,7 +13,6 @@
         android:summary="开启则屏幕点亮也会通知"
         android:title="亮屏通知" />
     <PreferenceCategory android:title="预设应用通知转发"/>
-
 
     <SwitchPreference
         android:defaultValue="true"
@@ -67,12 +62,17 @@
         android:summary="常用音乐软件QQ、网易云等通知"
         android:title="常用音乐软件" />
 
-    <PreferenceCategory android:title="过滤通知"/>
+    <PreferenceCategory android:title="通知过滤"/>
 
     <EditTextPreference
         android:key="block"
         android:singleLine="false"
         android:title="指定关键词屏蔽(一行一个)"
         android:summary="可以屏蔽包含指定关键词的通知(支持正则表达式)"/>
+
+    <PreferenceCategory android:title="配置信息"/>
+    <Preference android:title="导出配置信息"/>
+    <Preference android:title="从其他设备导入配置信息"/>
+    <PreferenceCategory android:title="通知转发"/>
 
 </PreferenceScreen>

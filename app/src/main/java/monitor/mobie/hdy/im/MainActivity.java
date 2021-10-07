@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         };
-        if (data.getBoolean("listenAll", true) == false) {
+        if (data.getBoolean("customListen", true) == false) {
             Toast.makeText(MainActivity.this, "加载应用中..请耐心等待", Toast.LENGTH_LONG).show();
             getAppsThread();
         }
