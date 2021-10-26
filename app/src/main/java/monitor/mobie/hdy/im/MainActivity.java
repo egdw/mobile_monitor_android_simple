@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         };
-        if (data.getBoolean("customListen", true) == false) {
+        if (data.getBoolean("customListen", false)) {
             Toast.makeText(MainActivity.this, "加载应用中..请耐心等待", Toast.LENGTH_LONG).show();
             getAppsThread();
         }
@@ -144,10 +144,10 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "请先勾选手机监听器的读取通知栏权限!", Toast.LENGTH_LONG).show();
             return;
         }
-        if (applicationList != null && applicationList.getVisibility() == View.VISIBLE && applicationList.getAdapter() == null) {
-            //说明需要重新获取数据
-            myHandler.sendEmptyMessage(0x3);
-        }
+//        if (applicationList != null && applicationList.getVisibility() == View.VISIBLE && applicationList.getAdapter() == null) {
+//            //说明需要重新获取数据
+//            myHandler.sendEmptyMessage(0x3);
+//        }
         if(Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             if (!isIgnoringBatteryOptimizations()) {
                 Toast.makeText(this, "请将省电优化设置为无限制，关闭对通知器的省电优化有助于防止程序被杀！!", Toast.LENGTH_LONG).show();

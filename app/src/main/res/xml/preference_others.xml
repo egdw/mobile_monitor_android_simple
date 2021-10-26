@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <PreferenceCategory android:title="通知转发"/>
 
     <SwitchPreference
         android:defaultValue="true"
@@ -73,6 +74,5 @@
     <PreferenceCategory android:title="配置信息"/>
     <Preference android:title="导出配置信息"/>
     <Preference android:title="从其他设备导入配置信息"/>
-    <PreferenceCategory android:title="通知转发"/>
 
 </PreferenceScreen>
