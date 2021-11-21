@@ -205,12 +205,12 @@ public class PushSettingFrament extends PreferenceFragment {
             public boolean onPreferenceClick(Preference preference) {
                 if (!shp.getString(Constant.SCKEY, "").isEmpty()) {
                     BarkProvider provider = new BarkProvider();
-                    provider.setContext(PushSettingFrament.this.getContext());
+                    provider.setContext(PushSettingFrament.this.getActivity());
                     provider.sendTest();
-                    ToastUtils.toast(PushSettingFrament.this.getContext(), "发送测试完成");
+                    ToastUtils.toast(PushSettingFrament.this.getActivity(), "发送测试完成");
                     return true;
                 }
-                ToastUtils.toast(PushSettingFrament.this.getContext(), "请输入Bark的地址");
+                ToastUtils.toast(PushSettingFrament.this.getActivity(), "请输入Bark的地址");
                 return true;
             }
         });
@@ -219,12 +219,12 @@ public class PushSettingFrament extends PreferenceFragment {
             public boolean onPreferenceClick(Preference preference) {
                 if (!shp.getString(Constant.EMAIL_RECEIVER, "").isEmpty()&&!shp.getString(Constant.EMAIL_TYPE, "").isEmpty()&&!shp.getString(Constant.EMAIL_ACCOUNT, "").isEmpty() && !shp.getString(Constant.EMAIL_PASSWORD, "").isEmpty()) {
                     EmailProvider emailProvider = new EmailProvider();
-                    emailProvider.setContext(PushSettingFrament.this.getContext());
+                    emailProvider.setContext(PushSettingFrament.this.getActivity());
                     emailProvider.sendTest();
-                    ToastUtils.toast(PushSettingFrament.this.getContext(), "发送测试完成");
+                    ToastUtils.toast(PushSettingFrament.this.getActivity(), "发送测试完成");
                     return true;
                 }
-                ToastUtils.toast(PushSettingFrament.this.getContext(), "请输入完整数据再进行测试!");
+                ToastUtils.toast(PushSettingFrament.this.getActivity(), "请输入完整数据再进行测试!");
                 return true;
             }
         });
@@ -235,11 +235,11 @@ public class PushSettingFrament extends PreferenceFragment {
                 String sckey = shp.getString(Constant.SCKEY, "");
                 if (!sckey.isEmpty()) {
                     ServerJiangProvider provider = new ServerJiangProvider();
-                    provider.setContext(PushSettingFrament.this.getContext());
+                    provider.setContext(PushSettingFrament.this.getActivity());
                     provider.sendTest();
-                    ToastUtils.toast(PushSettingFrament.this.getContext(),"发送测试完成");
+                    ToastUtils.toast(PushSettingFrament.this.getActivity(),"发送测试完成");
                 } else {
-                    ToastUtils.toast(PushSettingFrament.this.getContext(),"请输入SCKEY");
+                    ToastUtils.toast(PushSettingFrament.this.getActivity(),"请输入SCKEY");
                 }
                 return true;
             }
@@ -253,13 +253,13 @@ public class PushSettingFrament extends PreferenceFragment {
                 String[] coustom_url_spilt = spilt(coustom_url);
                 String[] coustom_method_spilt = spilt(coustom_method);
                 if (coustom_url_spilt!=null && coustom_method_spilt!=null && coustom_url_spilt.length == coustom_method_spilt.length) {
-                    new CustomProvider().setContext(PushSettingFrament.this.getContext()).sendTest();
-                    ToastUtils.toast(PushSettingFrament.this.getContext(),"发送测试完成");
+                    new CustomProvider().setContext(PushSettingFrament.this.getActivity()).sendTest();
+                    ToastUtils.toast(PushSettingFrament.this.getActivity(),"发送测试完成");
                 }else{
                     if (coustom_url_spilt == null || coustom_method_spilt == null){
-                        ToastUtils.toast(PushSettingFrament.this.getContext(),"请填写完整数据!");
+                        ToastUtils.toast(PushSettingFrament.this.getActivity(),"请填写完整数据!");
                     }else{
-                        ToastUtils.toast(PushSettingFrament.this.getContext(),"链接地址 和 请求方式 数量不一致!请重新检查!!");
+                        ToastUtils.toast(PushSettingFrament.this.getActivity(),"链接地址 和 请求方式 数量不一致!请重新检查!!");
                     }
                 }
                 return true;
@@ -278,18 +278,18 @@ public class PushSettingFrament extends PreferenceFragment {
                 if (wx_agentid_spilt!=null && wx_corpsecret_spilt!=null && wx_corpid_spilt!=null && wx_agentid_spilt.length == wx_corpsecret_spilt.length && wx_agentid_spilt.length == wx_corpid_spilt.length) {
                     if (!wxCorpid.isEmpty() && !wxCorpsecret.isEmpty() && !wxAgentid.isEmpty()) {
                         PushProvider provider = new WxPushProvider();
-                        provider.setContext(PushSettingFrament.this.getContext());
+                        provider.setContext(PushSettingFrament.this.getActivity());
                         provider.sendTest();
-                        ToastUtils.toast(PushSettingFrament.this.getContext(),"发送测试完成");
+                        ToastUtils.toast(PushSettingFrament.this.getActivity(),"发送测试完成");
                     } else {
-                        ToastUtils.toast(PushSettingFrament.this.getContext(),"请填写完整数据!");
+                        ToastUtils.toast(PushSettingFrament.this.getActivity(),"请填写完整数据!");
                     }
                     return true;
                 }
                 if (wx_agentid_spilt == null || wx_corpid_spilt == null || wx_corpsecret_spilt == null){
-                    ToastUtils.toast(PushSettingFrament.this.getContext(),"请填写完整数据!");
+                    ToastUtils.toast(PushSettingFrament.this.getActivity(),"请填写完整数据!");
                 }else{
-                    ToastUtils.toast(PushSettingFrament.this.getContext(),"企业编号 企业密钥 应用编号 数量不一致!请重新检查!!");
+                    ToastUtils.toast(PushSettingFrament.this.getActivity(),"企业编号 企业密钥 应用编号 数量不一致!请重新检查!!");
                 }
                 return false;
             }

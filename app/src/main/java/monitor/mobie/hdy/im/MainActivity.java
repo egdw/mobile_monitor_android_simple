@@ -131,7 +131,9 @@ public class MainActivity extends AppCompatActivity {
             adapter = null;
         }
         super.onPause();
-        startService(serviceIntent);
+        if (serviceIntent!=null) {
+            startService(serviceIntent);
+        }
     }
 
 

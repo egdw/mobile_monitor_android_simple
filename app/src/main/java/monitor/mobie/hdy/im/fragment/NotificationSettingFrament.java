@@ -31,7 +31,7 @@ public class NotificationSettingFrament extends PreferenceFragment {
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void init() {
         final SQLiteDatabase writeInstance =
-                AppinfosDatabase.getWriteInstance(getContext());
+                AppinfosDatabase.getWriteInstance(getActivity());
         SwitchPreference listenAll = (SwitchPreference) findPreference("customListen");
         listenAll.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
@@ -39,7 +39,7 @@ public class NotificationSettingFrament extends PreferenceFragment {
                 Boolean b = (Boolean) newValue;
                 MainActivity mainActivity = (MainActivity) getActivity();
                 if (b) {
-                    AppinfosDatabase.getInstance(getContext()).removeAll(writeInstance);
+                    AppinfosDatabase.getInstance(getActivity()).removeAll(writeInstance);
                     mainActivity.myHandler.sendEmptyMessage(0x3);
                 } else {
                     mainActivity.myHandler.sendEmptyMessage(0x2);
