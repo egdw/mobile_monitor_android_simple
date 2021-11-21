@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
 //            //说明需要重新获取数据
 //            myHandler.sendEmptyMessage(0x3);
 //        }
-        if(Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             if (!isIgnoringBatteryOptimizations()) {
                 Toast.makeText(this, "请将省电优化设置为无限制，关闭对通知器的省电优化有助于防止程序被杀！!", Toast.LENGTH_LONG).show();
             }
